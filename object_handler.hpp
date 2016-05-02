@@ -1,5 +1,5 @@
-#ifndef scene_hpp
-#define scene_hpp
+#ifndef object_handler_hpp
+#define object_handler_hpp
 
 #ifdef __APPLE__
     #include <OpenGL/OpenGL.h>
@@ -8,6 +8,6 @@
     #include <GL/glut.h>
 #endif
 
-void start(int argc, char** argv);
+#include <stdio.h>
 
-#endif /* scene_hpp */
+#endif /* object_handler_hpp */

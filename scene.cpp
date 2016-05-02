@@ -7,10 +7,39 @@
 //
 
 #include "scene.hpp"
+#include "colors.hpp"
 
-#define SCREEN_WIDTH 50
-#define SCREEN_HEIGHT 50
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
 
+GLfloat ambientColor[] = {WHITE_COLOR, 1.0};
+
+void display() {
+    
+    glutSwapBuffers();
+}
+
+void keyboard(unsigned char key, int x, int y) {
+    
+}
+
+void special(int key, int x, int y) {
+    
+}
+
+void initLights() {
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientColor);
+}
+
+void init(void) {
+    glClearColor(WHITE_COLOR, 1.0);
+    glShadeModel(GL_SMOOTH);
+    
+    initLights();
+    glEnable(GL_LIGHTING);
+    
+    glEnable(GL_DEPTH_TEST);
+}
 
 void start(int argc, char** argv) {
     glutInit(&argc, argv);
@@ -19,5 +48,11 @@ void start(int argc, char** argv) {
     glutInitWindowSize (SCREEN_WIDTH, SCREEN_HEIGHT);
     glutInitWindowPosition (400, 400);
     glutCreateWindow ("Computational Graphic Project");
+    
+    init();
+    
+    glutSpecialFunc(special);
+    glutDisplayFunc(display);
+    glutKeyboardFunc(keyboard);
     glutMainLoop();
 }
