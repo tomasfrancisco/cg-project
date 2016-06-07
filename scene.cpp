@@ -8,13 +8,25 @@
 
 #include "scene.hpp"
 #include "colors.hpp"
+#include "Loader.h"
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
 GLfloat ambientColor[] = {WHITE_COLOR, 1.0};
 
+Loader bowling;
+
+void loadObjects() {
+    char file[20] = "bowling.obj";
+    
+    bowling.Load(file);
+}
+
 void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    bowling.Draw();
     
     glutSwapBuffers();
 }
@@ -35,10 +47,12 @@ void init(void) {
     glClearColor(WHITE_COLOR, 1.0);
     glShadeModel(GL_SMOOTH);
     
-    initLights();
-    glEnable(GL_LIGHTING);
+    //initLights();
+    //glEnable(GL_LIGHTING);
     
     glEnable(GL_DEPTH_TEST);
+    
+    loadObjects();
 }
 
 void start(int argc, char** argv) {
