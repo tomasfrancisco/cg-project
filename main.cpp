@@ -1,5 +1,5 @@
 #include "main.hpp"
-#include "scene.hpp"
+#include "Scene.h"
 
 int main(int argc, char** argv){
     

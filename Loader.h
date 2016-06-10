@@ -1,8 +1,8 @@
 /*
  * Loader.h
  *
- *  Created on: Aug 13, 2012
- *      Author: letrungkien7
+ * Created on: Aug 13, 2012
+ *     Author: letrungkien7
  */
 
 #ifndef LOADER_H_

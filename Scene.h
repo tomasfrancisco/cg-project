@@ -8,6 +8,9 @@
     #include <GL/glut.h>
 #endif
 
+#include "colors.hpp"
+#include "Loader.h"
+
 void start(int argc, char** argv);
 
 #endif /* scene_hpp */
