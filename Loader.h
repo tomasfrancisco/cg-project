@@ -19,18 +19,15 @@
 #include<vector>
 #include "Eigen/Core"
 
-using namespace std;
-using namespace Eigen;
-
-typedef Vector3d Point;
+typedef Eigen::Vector3d Point;
 
 class Loader {
 public:
 	void Load(char* filename);
 	void Draw();
 
-	vector<Point> V;
-	vector<vector<int> > F;
+	std::vector<Point> V;
+	std::vector<std::vector<int> > F;
 };
 
 #endif /* LOADER_H_ */

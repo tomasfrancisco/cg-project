@@ -7,21 +7,19 @@
 
 #include "Loader.h"
 
-using namespace std;
-
 void Loader::Load(char* filename){
 	char line[100];
 	char mark[5];
 	float x,y,z;
 	char *pch;
-	vector<int> faceIndex;
+	std::vector<int> faceIndex;
 	int index;
 
 	FILE* fp = fopen(filename, "r");
 	V.push_back(Point(0,0,0));
 
 	if(!fp){
-		cout<< "Couldn't open the file!"<<endl;
+		std::cout<< "Couldn't open the file!"<<std::endl;
 		exit(1);
 	}
 

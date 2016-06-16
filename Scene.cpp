@@ -35,6 +35,7 @@
 
 //#include "materiais.h" //isto e para tirar
 #include "RgbImage.h"
+#include "Loader.h"
 
 //================================================================================
 //===========================================================Variaveis e constantes
@@ -111,6 +112,8 @@ GLfloat height = 20;
 GLint dim = 64;
 
 GLfloat Map[] = { 60.0, 25.0, 30.0 };
+
+//Loader bowling;
 
 //================================================================================
 //=========================================================================== INIT
@@ -439,6 +442,8 @@ void init(void)
 	initLights();
 	//NOVO
 	//initNevoeiro();
+	//char file[20] = "bowling.obj";
+	//bowling.Load(file);
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
@@ -649,6 +654,8 @@ void drawScene() {
 
 
 	};*/
+
+	//bowling.Draw();
 
 	glutPostRedisplay();
 }
