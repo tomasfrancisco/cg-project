@@ -12,5 +12,5 @@ include_directories(${GLUT_INCLUDE_DIRS})
 link_libraries(${GLUT_LIBRARIES})
 
 
-set(SOURCE_FILES main.cpp Scene.cpp Scene.h Loader.cpp Loader.h colors.hpp)
+set(SOURCE_FILES main.cpp Scene.cpp Scene.h Loader.cpp Loader.h colors.hpp RgbImage.cpp RgbImage.h)
 add_executable(cg_project ${SOURCE_FILES})
