@@ -113,7 +113,7 @@ GLint dim = 64;
 
 GLfloat Map[] = { 60.0, 25.0, 30.0 };
 
-//Loader bowling;
+Loader objects[10];
 
 //================================================================================
 //=========================================================================== INIT
@@ -442,8 +442,10 @@ void init(void)
 	initLights();
 	//NOVO
 	//initNevoeiro();
-	//char file[20] = "bowling.obj";
-	//bowling.Load(file);
+	char ball[20] = "ball.obj";
+	objects[0].Load(ball);
+	char pin[20] = "pin.obj";
+	objects[1].Load(pin);
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
@@ -655,7 +657,10 @@ void drawScene() {
 
 	};*/
 
-	//bowling.Draw();
+	glPushMatrix();
+		glTranslatef(0, 5, 0);
+		objects[1].Draw();
+	glPopMatrix();
 
 	glutPostRedisplay();
 }
