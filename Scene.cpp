@@ -482,6 +482,10 @@ void drawScene() {
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Tecto y=Map[1]
+
+
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Paredes X
 
 	glEnable(GL_TEXTURE_2D);
@@ -518,6 +522,18 @@ void drawScene() {
 	glTexCoord2f(1.0f, 0.0f); glVertex3i(Map[0] / 2, 0, -Map[2] / 2);
 	glTexCoord2f(1.0f, 1.0f); glVertex3i(Map[0] / 2, Map[1], -Map[2] / 2);
 	glTexCoord2f(0.0f, 1.0f); glVertex3i(-Map[0] / 2, Map[1], -Map[2] / 2);
+	glEnd();
+	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture[1]);
+	glPushMatrix();
+	glBegin(GL_QUADS);
+	glTexCoord2f(1.0f, 1.0f); glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
+	glTexCoord2f(0.0f, 1.0f); glVertex3i(Map[0] / 2, 0, Map[2] / 2);
+	glTexCoord2f(0.0f, 0.0f); glVertex3i(Map[0] / 2, Map[1], Map[2] / 2);
+	glTexCoord2f(1.0f, 0.0f); glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
 	glEnd();
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
