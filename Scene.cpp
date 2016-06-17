@@ -113,6 +113,8 @@ GLint dim = 64;
 
 GLfloat Map[] = { 60.0, 25.0, 30.0 };
 
+//Objectos do Blender
+
 Loader *object;
 
 //================================================================================
@@ -411,6 +413,21 @@ void initTextures()
 		imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
 		imag.ImageData());
 
+	//----------------------------------------- Tecto
+
+	glGenTextures(1, &texture[3]);
+	glBindTexture(GL_TEXTURE_2D, texture[3]);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	imag.LoadBmpFile("ceiling.bmp");
+	glTexImage2D(GL_TEXTURE_2D, 0, 3,
+				 imag.GetNumCols(),
+				 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+				 imag.ImageData());
+
 }
 
 
@@ -442,11 +459,6 @@ void init(void)
 	initLights();
 	//NOVO
 	//initNevoeiro();
-	char ball[20] = "pin.obj";
-    object = new Loader();
-    object->path = ball;
-	object->load();
-
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
@@ -484,6 +496,17 @@ void drawScene() {
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Tecto y=Map[1]
 
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture[3]);
+	glPushMatrix();
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f); glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
+	glTexCoord2f(1.0f, 0.0f); glVertex3i(Map[0]/2, Map[1], Map[2] / 2);
+	glTexCoord2f(1.0f, 1.0f); glVertex3i(Map[0]/2, Map[1], -Map[2]/2);
+	glTexCoord2f(0.0f, 1.0f); glVertex3i(-Map[0] / 2, Map[1], -Map[2]/2);
+	glEnd();
+	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
 
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Paredes X
@@ -674,8 +697,26 @@ void drawScene() {
 
 	};*/
 
+	//Loading dos objectos para a cena
+	char pin[20] = "pin.obj";
+	char poolTable[20] = "PoolTable.obj";
+
+	object = new Loader();
+	object->path = pin;
+	object->load();
+
 	glPushMatrix();
-		//glTranslatef(0, 0, 0);
+		glTranslatef(5, 0, 5);
+		glScalef(0.5,0.5,0);
+		object->render();
+	glPopMatrix();
+
+	object = new Loader();
+	object->path = poolTable;
+	object->load();
+
+	glPushMatrix();
+		glScalef(2,2,0);
 		object->render();
 	glPopMatrix();
 
