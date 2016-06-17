@@ -35,7 +35,7 @@
 
 //#include "materiais.h" //isto e para tirar
 #include "RgbImage.h"
-#include "Loader.h"
+#include "Loader.hpp"
 
 //================================================================================
 //===========================================================Variaveis e constantes
@@ -113,7 +113,7 @@ GLint dim = 64;
 
 GLfloat Map[] = { 60.0, 25.0, 30.0 };
 
-Loader objects[10];
+Loader *object;
 
 //================================================================================
 //=========================================================================== INIT
@@ -442,10 +442,11 @@ void init(void)
 	initLights();
 	//NOVO
 	//initNevoeiro();
-	char ball[20] = "ball.obj";
-	objects[0].Load(ball);
-	char pin[20] = "pin.obj";
-	objects[1].Load(pin);
+	char ball[20] = "pin.obj";
+    object = new Loader();
+    object->path = ball;
+	object->load();
+
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
@@ -658,8 +659,8 @@ void drawScene() {
 	};*/
 
 	glPushMatrix();
-		glTranslatef(0, 5, 0);
-		objects[1].Draw();
+		//glTranslatef(0, 0, 0);
+		object->render();
 	glPopMatrix();
 
 	glutPostRedisplay();

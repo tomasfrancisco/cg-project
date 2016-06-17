@@ -9,7 +9,7 @@
 #endif
 
 #include "colors.hpp"
-#include "Loader.h"
+#include "Loader.hpp"
 
 void start(int argc, char** argv);
 
