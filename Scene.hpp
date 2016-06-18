@@ -9,7 +9,6 @@
 #endif
 
 #include "colors.hpp"
-#include "Loader.hpp"
 
 void start(int argc, char** argv);
 
