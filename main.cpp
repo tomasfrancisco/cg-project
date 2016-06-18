@@ -31,16 +31,14 @@ GLfloat  rVisao=3.0, aVisao=0.5*PI, incVisao=0.1;
 GLfloat  obsPini[] ={0, 4, static_cast<GLfloat>(0.5*xC)};
 GLfloat  obsPfin[] ={static_cast<GLfloat>(obsPini[0]-rVisao*cos(aVisao)), obsPini[1], static_cast<GLfloat>(obsPini[2]-rVisao*sin(aVisao))};
 
-//------------------------------------------------------------ Texturas e Rotacao
-GLfloat   quadS   = 4.0;
-GLfloat   quadP[] = {-2, 0, -8};
-
-//------------------------------------------------------------ NOVO - Nevoeiro
-GLfloat nevoeiroCor[] = {0.75, 0.75, 0.75, 1.0}; //definicao da cor do nevoeiro
-
+//------------------------------------------------------------ Rotacao e Velocidade
+GLfloat   velocidades [4]  = {1,2,3,4};
+GLfloat   rotacoes [4]= {30,45,60,90};
+GLfloat   timer = 1000;
 
 //------------------------------------------------------------ Iluminacao
 //------------------------------------------------------------ Global (ambiente)
+
 GLint   noite=0;
 GLfloat luzGlobalCor[4]={1.0,1.0,1.0,1.0};   // 
 //Lampada tecto (ambiente local)
@@ -53,122 +51,16 @@ GLfloat localAttCon =1.0;
 GLfloat localAttLin =0.05;
 GLfloat localAttQua =0.0;
 
-//Lanterna (local)
-GLint   ligaFoco  = 0;
-GLfloat rFoco=1.1, aFoco=aVisao;
-GLfloat incH =0.0, incV=0.0;
-GLfloat incMaxH =0.5, incMaxV=0.35;
-GLfloat focoPini[]= { obsPini[0], obsPini[1], obsPini[2], 1.0 };
-GLfloat focoPfin[]={ static_cast<GLfloat>(obsPini[0]-rFoco*cos(aFoco)), obsPini[1], static_cast<GLfloat>(obsPini[2]-rFoco*sin(aFoco)), 1.0};
-GLfloat focoDir[] = { focoPfin[0]-focoPini[0], 0, focoPfin[2]-focoPini[2]};
-GLfloat focoExp   = 10.0;
-GLfloat focoCut   = 15.0;
-
-GLfloat focoCorEsp[4] ={ 1.0 ,  1.0, 1.0, 1.0};
-GLfloat focoCorDif[4] ={ 0.85, 0.85,0.85, 1.0};
-
-//Materiais
-GLint   colorM=0;
-GLfloat matAmbiente[] = {1.0,1.0,1.0,1.0};
-GLfloat matDifusa[]   = {1.0,1.0,1.0,1.0};
-GLfloat matEspecular[]= {1.0, 1.0, 1.0, 1.0};
-GLint   especMaterial = 20;
-GLint   material = 1;
-GLint   material1 = 5;
-GLint   material2 = 18;
-GLint   material3 = 9;
-GLint   material4 = 4;
-
-
-
-
-GLfloat x = 0;
-GLfloat y = 0;
-
-GLfloat width = 20;
-GLfloat height = 20;
-
-GLint dim = 64;
-
 // textures
 GLuint      texture[20];
 RgbImage    imag;
 
 GLfloat Map[] = { 60.0, 5.0, 30.0 };
+GLint transp = 0;
 
 //================================================================================
 //=========================================================================== INIT
 //================================================================================
-
-void MenuMaterial(int op) {
-    material=op-1;
-
-    material1=material+1; if (material1>23) material1=0;
-    material2=material1+1; if (material2>23) material2=0;
-    material3=material2+1; if (material3>23) material3=0;
-    material4=material3+1; if (material4>23) material4=0;
-
-
-    /*switch(op) {
-     case 0:
-     break;
-     case 1:
-     break;
-     case 2:
-     break;
-     }*/
-    glutPostRedisplay();
-}
-void MenuPrincipal(int op)
-{
-}
-
-void CriaMenu()
-{
-
-    int menu,submenu1,submenu2;
-
-    submenu1 = glutCreateMenu(MenuMaterial);
-    glutAddMenuEntry(" 1 ",1);
-    glutAddMenuEntry(" 2",2);
-    glutAddMenuEntry(" 3",3);
-    glutAddMenuEntry(" 4",4);
-    glutAddMenuEntry(" 5",5);
-    glutAddMenuEntry(" 6",6);
-    glutAddMenuEntry(" 7",7);
-    glutAddMenuEntry(" 8",8);
-    glutAddMenuEntry(" 9",9);
-    glutAddMenuEntry(" 10",10);
-    glutAddMenuEntry(" gold",11);
-    glutAddMenuEntry(" silver",12);
-    glutAddMenuEntry(" black plastic",13);
-    glutAddMenuEntry(" cyan plastic",14);
-    glutAddMenuEntry(" green plastic",15);
-    glutAddMenuEntry(" red plastic",16);
-    glutAddMenuEntry(" white plastic",17);
-    glutAddMenuEntry(" yellow plastic",18);
-    glutAddMenuEntry(" black rubber",19);
-    glutAddMenuEntry(" cyan rubber",20);
-    glutAddMenuEntry(" green rubber",21);
-    glutAddMenuEntry(" red rubber",22);
-    glutAddMenuEntry(" white rubber",23);
-    glutAddMenuEntry(" yellow rubber ",24);
-
-
-    menu = glutCreateMenu(MenuPrincipal);
-    glutAddSubMenu("Material",submenu1);
-    glutAttachMenu(GLUT_RIGHT_BUTTON);
-
-}
-
-void gestaoRato(int button, int state, int x, int y)
-{
-    if (button == GLUT_RIGHT_BUTTON)
-    if (state == GLUT_DOWN)
-        CriaMenu();
-
-    glutPostRedisplay();
-}
 
 void initTextures() {
     //----------------------------------------- Chao
@@ -211,13 +103,6 @@ void initLights(void){
     glLightf (GL_LIGHT0, GL_CONSTANT_ATTENUATION, localAttCon);
     glLightf (GL_LIGHT0, GL_LINEAR_ATTENUATION,   localAttLin) ;
     glLightf (GL_LIGHT0, GL_QUADRATIC_ATTENUATION,localAttQua) ;
-    //Foco
-    glLightfv(GL_LIGHT1, GL_POSITION,      focoPini );
-    glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION,focoDir );
-    glLightf (GL_LIGHT1, GL_SPOT_EXPONENT ,focoExp);
-    glLightf (GL_LIGHT1, GL_SPOT_CUTOFF,   focoCut);
-    glLightfv(GL_LIGHT1, GL_DIFFUSE,       focoCorDif );
-    glLightfv(GL_LIGHT1, GL_SPECULAR,      focoCorEsp  );
 }
 
 void initMaterials(int material) {
@@ -330,43 +215,6 @@ void initMaterials(int material) {
             glMaterialfv(GL_FRONT,GL_SPECULAR, yellowPlasticSpec);
             glMateriali (GL_FRONT,GL_SHININESS,yellowPlasticCoef);
             break;
-        case 18: //blackRubber
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  blackRubberAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  blackRubberDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, blackRubberSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,blackRubberCoef);
-            break;
-        case 19: //cyanRubber
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  cyanRubberAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  cyanRubberDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, cyanRubberSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,cyanRubberCoef);
-            break;
-        case 20: //greenRubber
-
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  greenRubberAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  greenRubberDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, greenRubberSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,greenRubberCoef);
-            break;
-        case 21: //redRubber
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  redRubberAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  redRubberDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, redRubberSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,redRubberCoef);
-            break;
-        case 22: //redRubber
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  whiteRubberAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  whiteRubberDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, whiteRubberSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,whiteRubberCoef);
-            break;
-        case 23: //redRubber
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  yellowRubberAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  yellowRubberDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, yellowRubberSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,yellowRubberCoef);
-            break;
     }
 }
 
@@ -389,12 +237,16 @@ void init(void) {
 }
 
 void desenhaTexto(char *string, GLfloat x, GLfloat y, GLfloat z) {
+    glDisable(GL_LIGHTING);
     glRasterPos3f(x,y,z);
     while(*string)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, *string++);
 }
 
 void drawAxis() {
+
+    glDisable(GL_COLOR_MATERIAL);
+    glDisable(GL_LIGHTING);
     //Eixo dos zz
     glColor4f(AZUL);
     glBegin(GL_LINES);
@@ -508,35 +360,79 @@ void drawScene() {
     drawAxis();
     drawRoom();
 
-    glDisable(GL_COLOR_MATERIAL);
-    glEnable(GL_LIGHTING);
+    if (transp) {
 
-    initLights();
-    initMaterials(material);
 
-    glPushMatrix();
-        glColor4f(AZUL);
-        glTranslatef (-1.2, 0.0, 6.2);
-        glutSolidSphere(1.2, 250, 250);
-    glPopMatrix();
+        initLights();
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    initMaterials(0);
-    glPushMatrix();
-        glColor4f(VERMELHO);
-        glTranslatef (-3.2, 0.0, 6.2);
-        glutSolidSphere(1.2, 250, 250);
-    glPopMatrix();
+        //black
+        glPushMatrix();
+        glColor4f(0.0, 0.0, 0.0, 0.4);
+        glTranslatef(-2, 2, 6);
+        glutSolidSphere(1, 250, 250);
+        glPopMatrix();
 
-    initMaterials(22);
-    glPushMatrix();
-        glTranslatef(-1,-1,0);
-        glBegin(GL_QUADS);
-            glVertex3d(0,0,0);
-            glVertex3d(1,0,0);
-            glVertex3d(1,1,0);
-            glVertex3d(0,1,0);
-        glEnd();
-    glPopMatrix();
+        //white
+        glPushMatrix();
+        glColor4f(1.0, 1.0, 1.0, 0.4);
+        glTranslatef(-12, 2, 6);
+        glutSolidSphere(1, 250, 250);
+        glPopMatrix();
+
+        //red
+        glPushMatrix();
+        glColor4f(1.0, 0.0, 0.0, 0.4);
+        glTranslatef(15, 2, -12);
+        glutSolidSphere(1, 250, 250);
+        glPopMatrix();
+
+        //cyan
+        glPushMatrix();
+        glColor4f(0.0, 0.8, 1.0, 0.4);
+        glTranslatef(2, 2, 3);
+        glutSolidSphere(1, 250, 250);
+        glPopMatrix();
+
+        glDisable(GL_BLEND);
+
+    }else
+    {
+        glDisable(GL_COLOR_MATERIAL);
+        glEnable(GL_LIGHTING);
+        initLights();
+
+        //black
+        glPushMatrix();
+        initMaterials(2);
+        glTranslatef(-2, 2, 6);
+        glutSolidSphere(1, 250, 250);
+        glPopMatrix();
+
+        //white
+        glPushMatrix();
+        initMaterials(3);
+        glTranslatef(-12, 2, 6);
+        glutSolidSphere(1, 250, 250);
+        glPopMatrix();
+
+        //red
+        glPushMatrix();
+        initMaterials(4);
+        glTranslatef(15, 2, -12);
+        glutSolidSphere(1, 250, 250);
+        glPopMatrix();
+
+        //cyan
+        glPushMatrix();
+        initMaterials(5);
+        glTranslatef(2, 2, 3);
+        glutSolidSphere(1, 250, 250);
+        glPopMatrix();
+    }
+
+    //initMaterials(22);
 
     glutPostRedisplay();
 }
@@ -557,33 +453,8 @@ void iluminacao(){
     else
         glDisable(GL_LIGHT0);
 
-    if (ligaFoco)
-        glEnable(GL_LIGHT1);
-    else
-        glDisable(GL_LIGHT1);
-
-    glLightfv(GL_LIGHT1, GL_POSITION,      focoPini);
-    glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION,focoDir );
 }
 
-void drawOrientacao()
-{
-    glPushMatrix();
-    glColor4f(VERDE);
-    glTranslatef (obsPini[0],obsPini[1],obsPini[2]);
-    glutSolidCube(1);
-    glPopMatrix();
-    glPushMatrix();
-    glColor4f(LARANJA);
-    glTranslatef (obsPfin[0],obsPfin[1],obsPfin[2]);
-    glutSolidCube(0.75);
-    glPopMatrix();
-    glPushMatrix();
-    glColor4f(VERMELHO);
-    glTranslatef (focoPfin[0],focoPfin[1],focoPfin[2]);
-    glutSolidCube(0.75);
-    glPopMatrix();
-}
 
 void display(void){
 
@@ -607,14 +478,17 @@ void display(void){
 
 
     //--------------------- desenha objectos
+
     drawScene();
-    drawOrientacao();
+
     //--------------------- Informacao
-    glColor3f(1,0,0);
+    glColor3f(0,0,0);
     sprintf(texto, "%d - Noite", noite);
     desenhaTexto(texto,-12,1,-6);
     sprintf(texto, "%d - Tecto", ligaLuz);
     desenhaTexto(texto,-12,1,-9);
+    sprintf(texto, "%d - Trans", transp);
+    desenhaTexto(texto,-12,1,-12);
 
     //================================================================= Viewport2
     glEnable(GL_LIGHTING);
@@ -630,24 +504,12 @@ void display(void){
     drawScene();
     glutSwapBuffers();
 
-
-
-
 }
 
 
 void updateVisao(){
     obsPfin[0] =obsPini[0]+rVisao*cos(aVisao);
     obsPfin[2] =obsPini[2]-rVisao*sin(aVisao);
-    focoPini[0]=obsPini[0];
-    focoPini[2]=obsPini[2];
-    focoPfin[0]=focoPini[0]-rFoco*cos(aFoco+incH);
-    focoPfin[2]=focoPini[2]-rFoco*sin(aFoco+incH);
-    focoPini[1]=obsPini[1];
-    focoPini[2]=obsPini[2];
-    focoDir[0] =focoPfin[0]-focoPini[0];
-    focoDir[1] =incV;
-    focoDir[2] =focoPfin[2]-focoPini[2];
     glutPostRedisplay();
 
 }
@@ -657,31 +519,6 @@ void updateVisao(){
 //======================================================= EVENTOS
 void keyboard(unsigned char key, int x, int y){
     switch (key) {
-        //--------------------------- Direccao da Lanterna
-        case 's':
-        case 'S':
-            incH=incH-0.05;
-            if (incH<-incMaxH ) incH=-incMaxH ;
-            updateVisao();
-            break;
-        case 'd':
-        case 'D':
-            incH=incH+0.05;
-            if (incH>incMaxH ) incH=incMaxH ;
-            updateVisao();
-            break;
-        case 'e':
-        case 'E':
-            incV=incV+0.05;
-            if (incV>incMaxV ) incV=incMaxV ;
-            updateVisao();
-            break;
-        case 'c':
-        case 'C':
-            incV=incV-0.05;
-            if (incV<-incMaxV ) incV=-incMaxV ;
-            updateVisao();
-            break;
             //--------------------------- Dia/noite
         case 'n':
         case 'N':
@@ -699,20 +536,12 @@ void keyboard(unsigned char key, int x, int y){
             ligaLuz=!ligaLuz;
             glutPostRedisplay();
             break;
-            //--------------------------- Observador
-        case 'f':
-        case 'F':
-            ligaFoco=!ligaFoco;
+
+        case 'g':
+        case 'G':
+            transp = !transp;
             glutPostRedisplay();
             break;
-            //--------------------------- ColorMaterial
-        case 'm':
-        case 'M':
-            colorM=!colorM;
-            glutPostRedisplay();
-            break;
-
-
 
             //--------------------------- Escape
         case 27:
@@ -734,11 +563,9 @@ void teclasNotAscii(int key, int x, int y)
     }
     if(key == GLUT_KEY_LEFT) {
         aVisao = (aVisao + 0.1) ;
-        aFoco=aFoco-0.1;
     }
     if(key == GLUT_KEY_RIGHT) {
         aVisao = (aVisao - 0.1) ;
-        aFoco=aFoco+0.1;
 
     }
     updateVisao();
@@ -751,14 +578,13 @@ int main(int argc, char** argv){
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
     glutInitWindowSize (wScreen, hScreen);
     glutInitWindowPosition (400, 100);
-    glutCreateWindow ("{jh,jpa,pjmm}@dei.uc.pt-CG  (left,right,up,down) - (n,t,f,m) - (s,d-e,c) ");
+    glutCreateWindow ("{(left,right,up,down) - (n,t)");
 
     init();
     glutSpecialFunc(teclasNotAscii);
     glutReshapeFunc(resize);
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
-    glutMouseFunc(gestaoRato);
 
     glutMainLoop();
 
