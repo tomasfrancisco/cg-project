@@ -4,6 +4,7 @@
 #include <math.h>
 #include "OpenGL.hpp"
 #include "materiais.hpp"
+#include "RgbImage.hpp"
 
 //==================================================================== Definir cores
 #define AZUL     0.0, 0.0, 1.0, 1.0
@@ -27,7 +28,7 @@ char     texto[30];
 //------------------------------------------------------------ Observador
 GLfloat  PI = 3.14159;
 GLfloat  rVisao=3.0, aVisao=0.5*PI, incVisao=0.1;
-GLfloat  obsPini[] ={0, 0, static_cast<GLfloat>(0.5*xC)};
+GLfloat  obsPini[] ={0, 4, static_cast<GLfloat>(0.5*xC)};
 GLfloat  obsPfin[] ={static_cast<GLfloat>(obsPini[0]-rVisao*cos(aVisao)), obsPini[1], static_cast<GLfloat>(obsPini[2]-rVisao*sin(aVisao))};
 
 //------------------------------------------------------------ Texturas e Rotacao
@@ -88,12 +89,18 @@ GLfloat width = 20;
 GLfloat height = 20;
 
 GLint dim = 64;
+
+// textures
+GLuint      texture[20];
+RgbImage    imag;
+
+GLfloat Map[] = { 60.0, 5.0, 30.0 };
+
 //================================================================================
 //=========================================================================== INIT
 //================================================================================
 
-void MenuMaterial(int op)
-{
+void MenuMaterial(int op) {
     material=op-1;
 
     material1=material+1; if (material1>23) material1=0;
@@ -163,6 +170,35 @@ void gestaoRato(int button, int state, int x, int y)
     glutPostRedisplay();
 }
 
+void initTextures() {
+    //----------------------------------------- Chao
+    glGenTextures(1, &texture[0]);
+    glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    imag.LoadBmpFile("textures/chao.bmp");
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+                 imag.GetNumCols(),
+                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 imag.ImageData());
+
+    //----------------------------------------- Parede
+    glGenTextures(1, &texture[1]);
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    imag.LoadBmpFile("textures/wall.bmp");
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+                 imag.GetNumCols(),
+                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 imag.ImageData());
+}
 
 
 void initLights(void){
@@ -184,8 +220,7 @@ void initLights(void){
     glLightfv(GL_LIGHT1, GL_SPECULAR,      focoCorEsp  );
 }
 
-void initMaterials(int material)
-{
+void initMaterials(int material) {
     switch (material){
         case 0: //esmerald
             glMaterialfv(GL_FRONT,GL_AMBIENT,  esmeraldAmb  );
@@ -333,36 +368,19 @@ void initMaterials(int material)
             glMateriali (GL_FRONT,GL_SHININESS,yellowRubberCoef);
             break;
     }
-
-
 }
 
-
-//--------------------- NOVO - Definicoes do nevoeiro
-void initNevoeiro(void){
-    glFogfv(GL_FOG_COLOR, nevoeiroCor); //Cor do nevoeiro
-    glFogi(GL_FOG_MODE, GL_LINEAR); //Equa��o do nevoeiro - linear
-    glFogf(GL_FOG_START, 1.0); // Dist�ncia a que ter� in�cio o nevoeiro
-    glFogf(GL_FOG_END, 5.0); // Dist�ncia a que o nevoeiro terminar�
-    //glFogf (GL_FOG_DENSITY, 0.35); //Densidade do nevoeiro - n�o se especifica quando temos "nevoeiro linear"
-
-
-}
-void init(void)
-{
+void init(void) {
     glClearColor(WHITE);
     glShadeModel(GL_SMOOTH);
-
-    //NOVO - Activa o nevoeiro
-    glEnable(GL_FOG);
 
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
 
+    initTextures();
     initMaterials(1);
     initLights();
-    //NOVO
-    initNevoeiro();
+
 
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
@@ -370,24 +388,13 @@ void init(void)
     glEnable(GL_DEPTH_TEST);
 }
 
-
-//================================================================================
-//======================================================================== DISPLAY
-void desenhaTexto(char *string, GLfloat x, GLfloat y, GLfloat z)
-{
+void desenhaTexto(char *string, GLfloat x, GLfloat y, GLfloat z) {
     glRasterPos3f(x,y,z);
     while(*string)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, *string++);
 }
 
-
-
-
-void drawScene(){
-
-
-
-    //============================================Eixos
+void drawAxis() {
     //Eixo dos zz
     glColor4f(AZUL);
     glBegin(GL_LINES);
@@ -408,123 +415,128 @@ void drawScene(){
     glVertex3i(-xC,0,0);
     glVertex3i( xC,0,0);
     glEnd();
+}
 
-    //============================================ COloR MATERIAL
-    if (colorM==1)
-    {
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
-        glEnable(GL_LIGHTING);
+void drawRoom() {
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Chao y=0
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glPushMatrix();
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3i(Map[0] / 2, 0, Map[2] / 2);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3i(Map[0] / 2, 0, -Map[2] / 2);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3i(-Map[0] / 2, 0, -Map[2] / 2);
+    glEnd();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 
-        glPushMatrix();
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Paredes X
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glPushMatrix();
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3i(-Map[0] / 2, Map[1], -Map[2] / 2);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3i(-Map[0] / 2, 0, -Map[2] / 2);
+    glEnd();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glPushMatrix();
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3i(Map[0] / 2, 0, Map[2] / 2);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3i(Map[0] / 2, Map[1], Map[2] / 2);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3i(Map[0] / 2, Map[1], -Map[2] / 2);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3i(Map[0] / 2, 0, -Map[2] / 2);
+    glEnd();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Paredes Z
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glPushMatrix();
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3i(-Map[0] / 2, 0, -Map[2] / 2);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3i(Map[0] / 2, 0, -Map[2] / 2);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3i(Map[0] / 2, Map[1], -Map[2] / 2);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3i(-Map[0] / 2, Map[1], -Map[2] / 2);
+    glEnd();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glPushMatrix();
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3i(Map[0] / 2, 0, Map[2] / 2);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3i(Map[0] / 2, Map[1], Map[2] / 2);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
+    glEnd();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+}
+
+void drawScene() {
+    drawAxis();
+    drawRoom();
+
+    glDisable(GL_COLOR_MATERIAL);
+    glEnable(GL_LIGHTING);
+
+    initLights();
+    initMaterials(material);
+
+    glPushMatrix();
         glColor4f(AZUL);
         glTranslatef (-1.2, 0.0, 6.2);
         glutSolidSphere(1.2, 250, 250);
-        glPopMatrix();
-        glColor4f(LARANJA);
-        glPushMatrix();
-        glTranslatef (2.7, 0.0, 2.4);
-        glutSolidTorus(0.45,1.2,100,100);
-        glPopMatrix();
+    glPopMatrix();
+
+    initMaterials(0);
+    glPushMatrix();
         glColor4f(VERMELHO);
-        glPushMatrix();
-        glTranslatef (-2.0, 0.0, -2.7);
-        glRotatef (45, 1.0, 1.0,0);
-        glRotatef(-90, 1, 0,0);
-        glutSolidTorus(0.45,1.2,100,100);
-        glPopMatrix();
-        glColor4f(VERDE);
-        glPushMatrix();
-        glTranslatef (0.5, 0.0, 0.5);
-        glRotatef (-90,1, 0.0, 0.1);
-        glutSolidCone(1,4, 200,200);
-        glPopMatrix();
-
-
-
-
-
-        //NOVO: Poligono
-        //Definicao da normal ao poligono. Necessario em modo colorMaterial.
-        glColor4f(AZUL);
-
-        glPushMatrix();
-        glTranslatef(-1,-1,0);
-        glBegin(GL_QUADS);
-
-        glNormal3f(0,0,1);
-        glVertex3d(0,0,0);
-
-        glVertex3d(1,0,0);
-
-        glVertex3d(1,1,0);
-
-        glVertex3d(0,1,0);
-
-
-        glEnd();
-        glPopMatrix();
-    }
-    else  //================================= colorM=0
-    {
-        glDisable(GL_COLOR_MATERIAL);
-        glEnable(GL_LIGHTING);
-
-
-        initLights();
-        initMaterials(material);
-        glPushMatrix();
-        glColor4f(AZUL);
-        glTranslatef (-1.2, 0.0, 6.2);
+        glTranslatef (-3.2, 0.0, 6.2);
         glutSolidSphere(1.2, 250, 250);
-        glPopMatrix();
+    glPopMatrix();
 
-        initMaterials(material1);
-        glPushMatrix();
-        glTranslatef (2.7, 0.0, 2.4);
-        glutSolidTorus(0.45,1.2,100,100);
-        glPopMatrix();
-
-        initMaterials(material2);
-        glPushMatrix();
-        glTranslatef (-2.0, 0.0, -2.7);
-        glRotatef (45, 1.0, 1.0,0);
-        glRotatef(-90, 1, 0,0);
-        glutSolidTorus(0.45,1.2,100,100);
-        glPopMatrix();
-
-        initMaterials(material3);
-        glPushMatrix();
-        glTranslatef (0.5, 0.0, 0.5);
-        glRotatef (-90,1, 0.0, 0.1);
-        glutSolidCone(1,4, 200,200);
-        glPopMatrix();
-
-
-        initMaterials(22);
-
-
-
-        glPushMatrix();
+    initMaterials(22);
+    glPushMatrix();
         glTranslatef(-1,-1,0);
         glBegin(GL_QUADS);
-
-
-        glVertex3d(0,0,0);
-
-        glVertex3d(1,0,0);
-
-        glVertex3d(1,1,0);
-
-        glVertex3d(0,1,0);
-
-
+            glVertex3d(0,0,0);
+            glVertex3d(1,0,0);
+            glVertex3d(1,1,0);
+            glVertex3d(0,1,0);
         glEnd();
-        glPopMatrix();
-
-
-    };
-
+    glPopMatrix();
 
     glutPostRedisplay();
 }
@@ -585,7 +597,7 @@ void display(void){
     //================================================================= Viewport1
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    glViewport (0, hScreen/4, wScreen/4, hScreen/4);
+    glViewport (wScreen - wScreen/4, 0, wScreen/4, hScreen/4);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho (-xC,xC, -xC,xC, -zC,zC);
@@ -606,7 +618,7 @@ void display(void){
 
     //================================================================= Viewport2
     glEnable(GL_LIGHTING);
-    glViewport (wScreen/4, hScreen/4, 0.75*wScreen, 0.75*hScreen);
+    glViewport (0, 0, wScreen, hScreen);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(99.0, wScreen/hScreen, 0.1, 100.0);
