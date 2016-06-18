@@ -1,9 +1,0 @@
--Lampadas tecto
--Mesa Bilhar
--Mesa
--Copo
--Pinos
--Pista
--Bola
--Porta
--Interruptor
