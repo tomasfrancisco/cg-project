@@ -107,7 +107,7 @@ GLint dim = 64;
 
 GLfloat Map[] = { 60.0, 25.0, 30.0 };
 
-Object Pin("pin.obj");
+Object Pin("box.obj", "chao.bpm");
 
 //================================================================================
 //=========================================================================== INIT
@@ -200,85 +200,85 @@ void desenhaTexto(char *string, GLfloat x, GLfloat y, GLfloat z)
 
 void drawScene() {
 
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Chao y=0
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texture[0]);
-	glPushMatrix();
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 0.0f); glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
-	glTexCoord2f(10.0f, 0.0f); glVertex3i(Map[0]/2, 0, Map[2] / 2);
-	glTexCoord2f(10.0f, 10.0f); glVertex3i(Map[0]/2, 0, -Map[2]/2);
-	glTexCoord2f(0.0f, 10.0f); glVertex3i(-Map[0] / 2, 0, -Map[2]/2);
-	glEnd();
-	glPopMatrix();
-	glDisable(GL_TEXTURE_2D);
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Tecto y=Map[1]
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texture[3]);
-	glPushMatrix();
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 0.0f); glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
-	glTexCoord2f(1.0f, 0.0f); glVertex3i(Map[0]/2, Map[1], Map[2] / 2);
-	glTexCoord2f(1.0f, 1.0f); glVertex3i(Map[0]/2, Map[1], -Map[2]/2);
-	glTexCoord2f(0.0f, 1.0f); glVertex3i(-Map[0] / 2, Map[1], -Map[2]/2);
-	glEnd();
-	glPopMatrix();
-	glDisable(GL_TEXTURE_2D);
-
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Paredes X
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texture[1]);
-	glPushMatrix();
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 0.0f); glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
-	glTexCoord2f(0.0f, 1.0f); glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
-	glTexCoord2f(1.0f, 1.0f); glVertex3i(-Map[0] / 2, Map[1], -Map[2] / 2);
-	glTexCoord2f(1.0f, 0.0f); glVertex3i(-Map[0] / 2, 0, -Map[2] / 2);
-	glEnd();
-	glPopMatrix();
-	glDisable(GL_TEXTURE_2D);
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texture[1]);
-	glPushMatrix();
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 0.0f); glVertex3i(Map[0] / 2, 0, Map[2] / 2);
-	glTexCoord2f(0.0f, 1.0f); glVertex3i(Map[0] / 2, Map[1], Map[2] / 2);
-	glTexCoord2f(1.0f, 1.0f); glVertex3i(Map[0] / 2, Map[1], -Map[2] / 2);
-	glTexCoord2f(1.0f, 0.0f); glVertex3i(Map[0] / 2, 0, -Map[2] / 2);
-	glEnd();
-	glPopMatrix();
-	glDisable(GL_TEXTURE_2D);
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Paredes Z
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texture[2]);
-	glPushMatrix();
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 0.0f); glVertex3i(-Map[0] / 2, 0, -Map[2] / 2);
-	glTexCoord2f(1.0f, 0.0f); glVertex3i(Map[0] / 2, 0, -Map[2] / 2);
-	glTexCoord2f(1.0f, 1.0f); glVertex3i(Map[0] / 2, Map[1], -Map[2] / 2);
-	glTexCoord2f(0.0f, 1.0f); glVertex3i(-Map[0] / 2, Map[1], -Map[2] / 2);
-	glEnd();
-	glPopMatrix();
-	glDisable(GL_TEXTURE_2D);
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texture[1]);
-	glPushMatrix();
-	glBegin(GL_QUADS);
-	glTexCoord2f(1.0f, 1.0f); glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
-	glTexCoord2f(0.0f, 1.0f); glVertex3i(Map[0] / 2, 0, Map[2] / 2);
-	glTexCoord2f(0.0f, 0.0f); glVertex3i(Map[0] / 2, Map[1], Map[2] / 2);
-	glTexCoord2f(1.0f, 0.0f); glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
-	glEnd();
-	glPopMatrix();
-	glDisable(GL_TEXTURE_2D);
+//	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Chao y=0
+//	glEnable(GL_TEXTURE_2D);
+//	glBindTexture(GL_TEXTURE_2D, texture[0]);
+//	glPushMatrix();
+//	glBegin(GL_QUADS);
+//	glTexCoord2f(0.0f, 0.0f); glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
+//	glTexCoord2f(10.0f, 0.0f); glVertex3i(Map[0]/2, 0, Map[2] / 2);
+//	glTexCoord2f(10.0f, 10.0f); glVertex3i(Map[0]/2, 0, -Map[2]/2);
+//	glTexCoord2f(0.0f, 10.0f); glVertex3i(-Map[0] / 2, 0, -Map[2]/2);
+//	glEnd();
+//	glPopMatrix();
+//	glDisable(GL_TEXTURE_2D);
+//
+//	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Tecto y=Map[1]
+//
+//	glEnable(GL_TEXTURE_2D);
+//	glBindTexture(GL_TEXTURE_2D, texture[3]);
+//	glPushMatrix();
+//	glBegin(GL_QUADS);
+//	glTexCoord2f(0.0f, 0.0f); glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
+//	glTexCoord2f(1.0f, 0.0f); glVertex3i(Map[0]/2, Map[1], Map[2] / 2);
+//	glTexCoord2f(1.0f, 1.0f); glVertex3i(Map[0]/2, Map[1], -Map[2]/2);
+//	glTexCoord2f(0.0f, 1.0f); glVertex3i(-Map[0] / 2, Map[1], -Map[2]/2);
+//	glEnd();
+//	glPopMatrix();
+//	glDisable(GL_TEXTURE_2D);
+//
+//
+//	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Paredes X
+//
+//	glEnable(GL_TEXTURE_2D);
+//	glBindTexture(GL_TEXTURE_2D, texture[1]);
+//	glPushMatrix();
+//	glBegin(GL_QUADS);
+//	glTexCoord2f(0.0f, 0.0f); glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
+//	glTexCoord2f(0.0f, 1.0f); glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
+//	glTexCoord2f(1.0f, 1.0f); glVertex3i(-Map[0] / 2, Map[1], -Map[2] / 2);
+//	glTexCoord2f(1.0f, 0.0f); glVertex3i(-Map[0] / 2, 0, -Map[2] / 2);
+//	glEnd();
+//	glPopMatrix();
+//	glDisable(GL_TEXTURE_2D);
+//
+//	glEnable(GL_TEXTURE_2D);
+//	glBindTexture(GL_TEXTURE_2D, texture[1]);
+//	glPushMatrix();
+//	glBegin(GL_QUADS);
+//	glTexCoord2f(0.0f, 0.0f); glVertex3i(Map[0] / 2, 0, Map[2] / 2);
+//	glTexCoord2f(0.0f, 1.0f); glVertex3i(Map[0] / 2, Map[1], Map[2] / 2);
+//	glTexCoord2f(1.0f, 1.0f); glVertex3i(Map[0] / 2, Map[1], -Map[2] / 2);
+//	glTexCoord2f(1.0f, 0.0f); glVertex3i(Map[0] / 2, 0, -Map[2] / 2);
+//	glEnd();
+//	glPopMatrix();
+//	glDisable(GL_TEXTURE_2D);
+//
+//	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Paredes Z
+//
+//	glEnable(GL_TEXTURE_2D);
+//	glBindTexture(GL_TEXTURE_2D, texture[2]);
+//	glPushMatrix();
+//	glBegin(GL_QUADS);
+//	glTexCoord2f(0.0f, 0.0f); glVertex3i(-Map[0] / 2, 0, -Map[2] / 2);
+//	glTexCoord2f(1.0f, 0.0f); glVertex3i(Map[0] / 2, 0, -Map[2] / 2);
+//	glTexCoord2f(1.0f, 1.0f); glVertex3i(Map[0] / 2, Map[1], -Map[2] / 2);
+//	glTexCoord2f(0.0f, 1.0f); glVertex3i(-Map[0] / 2, Map[1], -Map[2] / 2);
+//	glEnd();
+//	glPopMatrix();
+//	glDisable(GL_TEXTURE_2D);
+//
+//	glEnable(GL_TEXTURE_2D);
+//	glBindTexture(GL_TEXTURE_2D, texture[1]);
+//	glPushMatrix();
+//	glBegin(GL_QUADS);
+//	glTexCoord2f(1.0f, 1.0f); glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
+//	glTexCoord2f(0.0f, 1.0f); glVertex3i(Map[0] / 2, 0, Map[2] / 2);
+//	glTexCoord2f(0.0f, 0.0f); glVertex3i(Map[0] / 2, Map[1], Map[2] / 2);
+//	glTexCoord2f(1.0f, 0.0f); glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
+//	glEnd();
+//	glPopMatrix();
+//	glDisable(GL_TEXTURE_2D);
 
 
 	//============================================Eixos
@@ -410,7 +410,7 @@ void init(void) {
 	glEnable(GL_COLOR_MATERIAL);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
-	initTextures();
+	//initTextures();
 	//initMaterials(1);
 	initLights();
 	//NOVO

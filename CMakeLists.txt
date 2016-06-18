@@ -12,5 +12,5 @@ include_directories(${GLUT_INCLUDE_DIRS})
 link_libraries(${GLUT_LIBRARIES})
 
 
-set(SOURCE_FILES main.cpp Scene.cpp Scene.hpp colors.hpp RgbImage.cpp RgbImage.hpp Object.cpp Object.hpp OpenGL.hpp Navigator.cpp Navigator.hpp Structs.cpp Structs.hpp)
+set(SOURCE_FILES main.cpp Scene.cpp Scene.hpp colors.hpp RgbImage.cpp RgbImage.hpp Object.cpp Object.hpp OpenGL.hpp Navigator.cpp Navigator.hpp Structs.cpp Structs.hpp Texture.cpp Texture.hpp)
 add_executable(cg_project ${SOURCE_FILES})

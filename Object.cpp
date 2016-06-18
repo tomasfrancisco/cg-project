@@ -4,9 +4,23 @@
 
 #include "Object.hpp"
 
+GLuint getTexture(const char* path) {
+//    char texturePath[LINE_LEN];
+//    char name[LINE_LEN];
+//    sprintf(texturePath, "%s", TEXTURE_PATH);
+//    sprintf(name, "%s", strstr(path, "/")+1);
+//    name[strlen(name)-4] = 0;
+//    strcat(texturePath, name);
+    return loadTexture(path);
+}
 
 Object::Object(const char *filePath) {
     this->filePath = filePath;
+}
+
+Object::Object(const char *filePath, const char *texturePath) {
+    this->filePath      = filePath;
+    this->texturePath   = texturePath;
 }
 
 bool Object::LoadFile() {
@@ -23,6 +37,9 @@ bool Object::LoadFile() {
     int conn[6];
     //int uv[3];
     //this->uvEnabled = false;
+    if(this->texture) {
+        this->texture = getTexture(this->texturePath);
+    }
 
     while(fgets(line, LINE_LEN, file)) {
         switch (line[0]) {
@@ -71,10 +88,10 @@ bool Object::LoadFile() {
 
 void Object::Draw() {
     int i;
-//    if (this->texture) {
-//        glEnable(GL_TEXTURE_2D);
-//        glBindTexture(GL_TEXTURE_2D, this->texture);
-//    }
+    if (this->texture) {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, this->texture);
+    }
 //    if (this->opacity < 1.0) {
 //        GLfloat color[4] = {1.0, 1.0, 1.0, this->opacity};
 //        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, color);
@@ -82,7 +99,7 @@ void Object::Draw() {
     glBegin(GL_TRIANGLES);
     for (i=0;i<(signed)this->F.size();i++) {
         glNormal3f(this->F[i].VN[0].x, this->F[i].VN[0].y, this->F[i].VN[0].z);
-        //if ((this->texture) && (this->uvEnabled)) glTexCoord2f(this->faces[i].uvs[0].x, this->faces[i].uvs[0].y);
+        if ((this->texture) && (this->uvEnabled)) glTexCoord2f(this->faces[i].uvs[0].x, this->faces[i].uvs[0].y);
         glVertex3f(this->F[i].V[0].x, this->F[i].V[0].y, this->F[i].V[0].z);
         glNormal3f(this->F[i].VN[1].x, this->F[i].VN[1].y, this->F[i].VN[1].z);
         //if ((this->texture) && (this->uvEnabled)) glTexCoord2f(this->faces[i].uvs[1].x, this->faces[i].uvs[1].y);
@@ -95,24 +112,3 @@ void Object::Draw() {
     glEnd();
     glDisable(GL_TEXTURE_2D);
 }
-
-//class Object {
-//public:
-//    Object();
-//    Object(char * filePath);
-//
-//    void LoadFile();
-//    void LoadFile(char * filePath);
-//
-//    void Draw();
-//
-//protected:
-//    float V;    // List of geometric vertices, with (x,y,z[,w]) coordinates, w is optional and defaults to 1.0.
-//    float VT;   // List of texture coordinates, in (u, v [,w]) coordinates, these will vary between 0 and 1, w is optional and defaults to 0.
-//    float VN;   // List of vertex normals in (x,y,z) form; normals might not be unit vectors.
-//    float F;    // Polygonal face element
-//
-//private:
-//    char * filePath;
-//
-//};
