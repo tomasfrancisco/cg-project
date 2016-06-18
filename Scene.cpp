@@ -28,7 +28,6 @@
 
 //#include "materiais.h" //isto e para tirar
 #include "RgbImage.hpp"
-//#include "Loader.hpp"
 #include "Object.hpp"
 #include "Navigator.hpp"
 
@@ -173,6 +172,21 @@ void initTextures()
 		imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
 		imag.ImageData());
 
+	//----------------------------------------- Tecto
+
+	glGenTextures(1, &texture[3]);
+	glBindTexture(GL_TEXTURE_2D, texture[3]);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	imag.LoadBmpFile("ceiling.bmp");
+	glTexImage2D(GL_TEXTURE_2D, 0, 3,
+				 imag.GetNumCols(),
+				 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+				 imag.ImageData());
+
 }
 
 //================================================================================
@@ -198,6 +212,21 @@ void drawScene() {
 	glEnd();
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Tecto y=Map[1]
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture[3]);
+	glPushMatrix();
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f); glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
+	glTexCoord2f(1.0f, 0.0f); glVertex3i(Map[0]/2, Map[1], Map[2] / 2);
+	glTexCoord2f(1.0f, 1.0f); glVertex3i(Map[0]/2, Map[1], -Map[2]/2);
+	glTexCoord2f(0.0f, 1.0f); glVertex3i(-Map[0] / 2, Map[1], -Map[2]/2);
+	glEnd();
+	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
+
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Paredes X
 
@@ -239,6 +268,18 @@ void drawScene() {
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture[1]);
+	glPushMatrix();
+	glBegin(GL_QUADS);
+	glTexCoord2f(1.0f, 1.0f); glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
+	glTexCoord2f(0.0f, 1.0f); glVertex3i(Map[0] / 2, 0, Map[2] / 2);
+	glTexCoord2f(0.0f, 0.0f); glVertex3i(Map[0] / 2, Map[1], Map[2] / 2);
+	glTexCoord2f(1.0f, 0.0f); glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
+	glEnd();
+	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
+
 
 	//============================================Eixos
 	//Eixo dos zz
@@ -262,6 +303,12 @@ void drawScene() {
 	glVertex3i(xC, 0, 0);
 	glEnd();
 
+
+	//Loading dos objectos para a cena
+	char pin[20] = "pin.obj";
+	char poolTable[20] = "PoolTable.obj";
+
+	Pin.LoadFile();
 
 	glPushMatrix();
 		Pin.Draw();
