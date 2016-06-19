@@ -35,6 +35,10 @@ GLfloat  obsPfin[] ={static_cast<GLfloat>(obsPini[0]-rVisao*cos(aVisao)), obsPin
 GLfloat   velocidades [4]  = {1,2,3,4};
 GLfloat   rotacoes [4]= {30,45,60,90};
 GLfloat   timer = 1000;
+GLfloat   timer2 = 10000;
+
+//Bolas
+GLfloat   bola1Pos [3] = {-2, 2, 6};
 
 //------------------------------------------------------------ Iluminacao
 //------------------------------------------------------------ Global (ambiente)
@@ -370,7 +374,8 @@ void drawScene() {
         //black
         glPushMatrix();
         glColor4f(0.0, 0.0, 0.0, 0.4);
-        glTranslatef(-2, 2, 6);
+        glTranslatef(bola1Pos[0],bola1Pos[1],bola1Pos[2]);
+        //glRotatef(rotacoes[1],1,0,0);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
@@ -406,8 +411,8 @@ void drawScene() {
         //black
         glPushMatrix();
         initMaterials(2);
-        glTranslatef(-2, 2, 6);
-        glutSolidSphere(1, 250, 250);
+        glTranslatef(bola1Pos[0],bola1Pos[1],bola1Pos[2]);
+        glRotatef(rotacoes[1],1,0,0);
         glPopMatrix();
 
         //white
@@ -432,7 +437,6 @@ void drawScene() {
         glPopMatrix();
     }
 
-    //initMaterials(22);
 
     glutPostRedisplay();
 }
@@ -511,7 +515,6 @@ void updateVisao(){
     obsPfin[0] =obsPini[0]+rVisao*cos(aVisao);
     obsPfin[2] =obsPini[2]-rVisao*sin(aVisao);
     glutPostRedisplay();
-
 }
 
 
@@ -571,6 +574,21 @@ void teclasNotAscii(int key, int x, int y)
     updateVisao();
 }
 
+void Timer(int value)
+{
+    //bola1Pos[0] = bola1Pos[0] + cos (rotacoes[1]);
+    //bola1Pos[2] = bola1Pos[2] + sin (rotacoes[1]);
+    glutPostRedisplay();
+    glutTimerFunc(timer, Timer, 1);
+}
+
+void Timer2(int value)
+{
+    //rotacoes[1] = rotacoes[1] +10;
+    glutPostRedisplay();
+    glutTimerFunc(timer, Timer, 1);
+}
+
 //======================================================= MAIN
 int main(int argc, char** argv){
 
@@ -578,13 +596,15 @@ int main(int argc, char** argv){
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
     glutInitWindowSize (wScreen, hScreen);
     glutInitWindowPosition (400, 100);
-    glutCreateWindow ("{(left,right,up,down) - (n,t)");
+    glutCreateWindow ("{(left,right,up,down) - (n,t,g)");
 
     init();
     glutSpecialFunc(teclasNotAscii);
     glutReshapeFunc(resize);
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
+    glutTimerFunc(timer, Timer, 1);
+    glutTimerFunc(timer2, Timer2, 1);
 
     glutMainLoop();
 
