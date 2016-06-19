@@ -29,16 +29,19 @@ char     texto[30];
 GLfloat  PI = 3.14159;
 GLfloat  rVisao=3.0, aVisao=0.5*PI, incVisao=0.1;
 GLfloat  obsPini[] ={0, 4, static_cast<GLfloat>(0.5*xC)};
-GLfloat  obsPfin[] ={static_cast<GLfloat>(obsPini[0]-rVisao*cos(aVisao)), obsPini[1], static_cast<GLfloat>(obsPini[2]-rVisao*sin(aVisao))};
+GLfloat  obsPfin[] ={static_cast<GLfloat>(obsPini[0]+rVisao*cos(aVisao)), obsPini[1], static_cast<GLfloat>(obsPini[2]+rVisao*sin(aVisao))};
 
 //------------------------------------------------------------ Rotacao e Velocidade
-GLfloat   velocidades [4]  = {1,2,3,4};
-GLfloat   rotacoes [4]= {30,45,60,90};
-GLfloat   timer = 1000;
-GLfloat   timer2 = 10000;
+
+GLfloat   rotacoes [4] = {15,30,45,30};
+GLfloat   timer = 10;
+
 
 //Bolas
-GLfloat   bola1Pos [3] = {-2, 2, 6};
+GLfloat   bolasPos [4][3]= {{-4 , 2, 6},
+                            {-12, 2, 6},
+                            {15,  2, -12},
+                            {4,   2, 9}};
 
 //------------------------------------------------------------ Iluminacao
 //------------------------------------------------------------ Global (ambiente)
@@ -291,6 +294,7 @@ void drawRoom() {
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
 
+
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Paredes X
 
     glEnable(GL_TEXTURE_2D);
@@ -366,6 +370,8 @@ void drawScene() {
 
     if (transp) {
 
+        glDisable(GL_COLOR_MATERIAL);
+        glEnable(GL_LIGHTING);
 
         initLights();
         glEnable(GL_BLEND);
@@ -373,30 +379,30 @@ void drawScene() {
 
         //black
         glPushMatrix();
-        glColor4f(0.0, 0.0, 0.0, 0.4);
-        glTranslatef(bola1Pos[0],bola1Pos[1],bola1Pos[2]);
+        initMaterials(2);
+        glTranslatef(bolasPos[0][0], bolasPos[0][1], bolasPos[0][2]);
         //glRotatef(rotacoes[1],1,0,0);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //white
         glPushMatrix();
-        glColor4f(1.0, 1.0, 1.0, 0.4);
-        glTranslatef(-12, 2, 6);
+        initMaterials(3);
+        glTranslatef(bolasPos[1][0], bolasPos[1][1], bolasPos[1][2]);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //red
         glPushMatrix();
-        glColor4f(1.0, 0.0, 0.0, 0.4);
-        glTranslatef(15, 2, -12);
+        initMaterials(4);
+        glTranslatef(bolasPos[2][0], bolasPos[2][1], bolasPos[2][2]);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //cyan
         glPushMatrix();
-        glColor4f(0.0, 0.8, 1.0, 0.4);
-        glTranslatef(2, 2, 3);
+        initMaterials(5);
+        glTranslatef(bolasPos[3][0], bolasPos[3][1], bolasPos[3][2]);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
@@ -411,28 +417,28 @@ void drawScene() {
         //black
         glPushMatrix();
         initMaterials(2);
-        glTranslatef(bola1Pos[0],bola1Pos[1],bola1Pos[2]);
-        glRotatef(rotacoes[1],1,0,0);
+        glTranslatef(bolasPos[0][0], bolasPos[0][1], bolasPos[0][2]);
+        glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //white
         glPushMatrix();
         initMaterials(3);
-        glTranslatef(-12, 2, 6);
+        glTranslatef(bolasPos[1][0], bolasPos[1][1], bolasPos[1][2]);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //red
         glPushMatrix();
         initMaterials(4);
-        glTranslatef(15, 2, -12);
+        glTranslatef(bolasPos[2][0], bolasPos[2][1], bolasPos[2][2]);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //cyan
         glPushMatrix();
         initMaterials(5);
-        glTranslatef(2, 2, 3);
+        glTranslatef(bolasPos[3][0], bolasPos[3][1], bolasPos[3][2]);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
     }
@@ -469,32 +475,9 @@ void display(void){
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+
+
     //================================================================= Viewport1
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    glViewport (wScreen - wScreen/4, 0, wScreen/4, hScreen/4);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho (-xC,xC, -xC,xC, -zC,zC);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluLookAt( 0, 10,0, 0,0,0, 0, 0, -1);
-
-
-    //--------------------- desenha objectos
-
-    drawScene();
-
-    //--------------------- Informacao
-    glColor3f(0,0,0);
-    sprintf(texto, "%d - Noite", noite);
-    desenhaTexto(texto,-12,1,-6);
-    sprintf(texto, "%d - Tecto", ligaLuz);
-    desenhaTexto(texto,-12,1,-9);
-    sprintf(texto, "%d - Trans", transp);
-    desenhaTexto(texto,-12,1,-12);
-
-    //================================================================= Viewport2
     glEnable(GL_LIGHTING);
     glViewport (0, 0, wScreen, hScreen);
     glMatrixMode(GL_PROJECTION);
@@ -502,10 +485,49 @@ void display(void){
     gluPerspective(99.0, wScreen/hScreen, 0.1, 100.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(obsPini[0], obsPini[1], obsPini[2], obsPfin[0], obsPfin[1], obsPfin[2], 0, 1, 0);
+    gluLookAt(obsPfin[0], obsPfin[1], obsPfin[2], obsPini[0], obsPini[1], obsPini[2] , 0, 1, 0);
+
+
 
     iluminacao();
     drawScene();
+
+    //================================================================= Viewport2
+
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glViewport (wScreen - wScreen/4, 0, wScreen/4, hScreen/4);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho (-xC,xC, -xC,xC, -zC,zC);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt( obsPini[0], obsPini[1] + 10, obsPini[2], obsPini[0], obsPini[1], obsPini[2],  -(obsPfin[0] - obsPini[0]), obsPini[1], -(obsPfin[2] - obsPini[2]));
+
+    //--------------------- desenha objectos
+
+    drawScene();
+
+    //================================================================= Viewport3
+
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glViewport (wScreen - wScreen/4, 0, wScreen/4, hScreen/4);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho (-xC,xC, -xC,xC, -zC,zC);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(0,  10, 0,0, 0,0, 0, 0, -1);
+
+
+    //--------------------- Informacao
+    glColor3f(0,0,0);
+    sprintf(texto, "%d - Noite", noite);
+    desenhaTexto(texto,-12 ,  + 1 ,- 6);
+    sprintf(texto, "%d - Tecto", ligaLuz);
+    desenhaTexto(texto,-12 , 1 ,  - 9);
+    sprintf(texto, "%d - Trans", transp);
+    desenhaTexto(texto,-12 ,1 ,  - 12);
+
     glutSwapBuffers();
 
 }
@@ -513,7 +535,7 @@ void display(void){
 
 void updateVisao(){
     obsPfin[0] =obsPini[0]+rVisao*cos(aVisao);
-    obsPfin[2] =obsPini[2]-rVisao*sin(aVisao);
+    obsPfin[2] =obsPini[2]+rVisao*sin(aVisao);
     glutPostRedisplay();
 }
 
@@ -546,6 +568,15 @@ void keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
 
+        case 'w':
+        case 'W':
+            obsPfin[1] += 1;
+            break;
+
+        case 's':
+        case 'S':
+            obsPfin[1] -= 1;
+            break;
             //--------------------------- Escape
         case 27:
             exit(0);
@@ -557,18 +588,18 @@ void keyboard(unsigned char key, int x, int y){
 void teclasNotAscii(int key, int x, int y)
 {
     if(key == GLUT_KEY_UP) {
-        obsPini[0]=obsPini[0]+incVisao*cos(aVisao);
+        obsPini[0]=obsPini[0]-incVisao*cos(aVisao);
         obsPini[2]=obsPini[2]-incVisao*sin(aVisao);
     }
     if(key == GLUT_KEY_DOWN) {
-        obsPini[0]=obsPini[0]-incVisao*cos(aVisao);
+        obsPini[0]=obsPini[0]+incVisao*cos(aVisao);
         obsPini[2]=obsPini[2]+incVisao*sin(aVisao);
     }
     if(key == GLUT_KEY_LEFT) {
-        aVisao = (aVisao + 0.1) ;
+        aVisao = (aVisao - 0.1) ;
     }
     if(key == GLUT_KEY_RIGHT) {
-        aVisao = (aVisao - 0.1) ;
+        aVisao = (aVisao + 0.1) ;
 
     }
     updateVisao();
@@ -576,21 +607,38 @@ void teclasNotAscii(int key, int x, int y)
 
 void Timer(int value)
 {
-    //bola1Pos[0] = bola1Pos[0] + cos (rotacoes[1]);
-    //bola1Pos[2] = bola1Pos[2] + sin (rotacoes[1]);
+
+    for (int i=0; i<4; i++)
+    {
+        if ((obsPini[0] >= bolasPos[i][0] -1 && obsPini[0] <= bolasPos[i][0] +1) && (obsPini[2] >= bolasPos[i][2] -1 && obsPini[2] <= bolasPos[i][2] +1) )
+            exit(0);
+
+        if (bolasPos[i][0] < 28 && bolasPos[i][0] > -28)
+            bolasPos[i][0] += cos (rotacoes[i])/2;
+        else
+        {
+            bolasPos[i][0] -= cos (rotacoes[i])/2;
+            rotacoes[i] = PI- rotacoes[i];
+        }
+
+
+        if (bolasPos[i][2] < 13 && bolasPos[i][2] > -13)
+            bolasPos[i][2] += sin (rotacoes[i])/2;
+        else
+        {
+            bolasPos[i][2] -= sin (rotacoes[i])/2;
+            rotacoes[i] = -rotacoes[i];
+        }
+    }
+
     glutPostRedisplay();
     glutTimerFunc(timer, Timer, 1);
 }
 
-void Timer2(int value)
-{
-    //rotacoes[1] = rotacoes[1] +10;
-    glutPostRedisplay();
-    glutTimerFunc(timer, Timer, 1);
-}
 
 //======================================================= MAIN
 int main(int argc, char** argv){
+
 
     glutInit(&argc, argv);
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
@@ -604,7 +652,6 @@ int main(int argc, char** argv){
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
     glutTimerFunc(timer, Timer, 1);
-    glutTimerFunc(timer2, Timer2, 1);
 
     glutMainLoop();
 
