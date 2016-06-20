@@ -6,7 +6,9 @@ GLboolean   isNightEnabled = false;
 GLboolean   isTransparencyEnable = false;
 GLfloat     timer = 10;
 
+
 GLfloat billiardTableDimensions[] = { 60.0, 2.0, 30.0 };
+GLfloat mirrorPosition[] = {0, 24, 0};
 
 Window window;
 Observer observer;
@@ -118,10 +120,10 @@ void init(void) {
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
 
+
     initObserver();
     initBalls();
     initLights();
-
 
     initTextures();
     initMaterials(MATERIAL_ESMERALD);
@@ -147,18 +149,12 @@ void drawAxis() {
     glPushMatrix();
     glDisable(GL_COLOR_MATERIAL);
     glDisable(GL_LIGHTING);
+
     //Eixo dos zz
     glColor4f(AZUL);
     glBegin(GL_LINES);
-    glVertex3i(0,0,-window.mainViewportWidth);
-    glVertex3i(0,0, window.mainViewportWidth);
-    glEnd();
-
-    //Eixo dos yy
-    glColor4f(VERDE);
-    glBegin(GL_LINE);
-    glVertex3i(0,-window.mainViewportWidth,0);
-    glVertex3i(0,window.mainViewportWidth,0);
+    glVertex3i(0,4, -window.mainViewportWidth);
+    glVertex3i(0,4, window.mainViewportWidth);
     glEnd();
 
     //Eixo dos xx
@@ -268,9 +264,9 @@ void drawMirror() {
 
 }
 
-void drawScene() {
+void drawScene(GLboolean isMinimap) {
     //glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BITS);
-    drawAxis();
+    if(isMinimap) drawAxis();
 
     drawBilliardTable(60, 20);
 
@@ -314,8 +310,7 @@ void drawScene() {
 
         glDisable(GL_BLEND);
 
-    }else
-    {
+    } else {
         glDisable(GL_COLOR_MATERIAL);
         glEnable(GL_LIGHTING);
         enableLights();
@@ -349,18 +344,14 @@ void drawScene() {
         glPopMatrix();
     }
 
-//        glPushMatrix();
-//            initMaterials(MATERIAL_GREEN_RUBBER);
-//            drawSquareMesh(5.0f, 5.0f, 10, false);
-//        glPopMatrix();
-
     glutPostRedisplay();
 }
 
 GLvoid resize(GLsizei width, GLsizei height) {
     window.windowWidth = width;
     window.windowHeight = height;
-    drawScene();
+
+    drawScene(false);
 }
 
 void iluminacao() {
@@ -370,16 +361,48 @@ void iluminacao() {
         glDisable(GL_LIGHT0);
 }
 
-void display(void){
-    if (isNightEnabled)
-        glClearColor(GRAY1);
-    else
-        glClearColor(GRAY2);
+void display(void) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    //================================================================= Minimap Information
+    glViewport (window.windowWidth - window.windowWidth/4, 0, window.windowWidth/4, window.windowHeight/4);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho (-window.mainViewportWidth, window.mainViewportWidth,
+             -window.mainViewportWidth,window.mainViewportWidth,
+             -window.mainViewportHeight,window.mainViewportHeight);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(0,  10, 0,0, 0,0, 0, 0, -1);
 
 
-    //================================================================= Viewport1
+    //--------------------- Informacao
+    glColor3f(0,0,0);
+    sprintf(texto, "%d - Noite", isNightEnabled);
+    desenhaTexto(texto,-12 , 23 ,- 6);
+    sprintf(texto, "%d - Tecto", isLightEnabled);
+    desenhaTexto(texto,-12 , 23 ,  - 9);
+    sprintf(texto, "%d - Trans", isTransparencyEnable);
+    desenhaTexto(texto,-12 ,23 ,  - 12);
+
+//    //================================================================= Minimap
+//    glViewport (window.windowWidth - window.windowWidth/4, 0, window.windowWidth/4, window.windowHeight/4);
+//    glMatrixMode(GL_PROJECTION);
+//    glLoadIdentity();
+//    glOrtho (-window.mainViewportWidth, window.mainViewportWidth, -window.mainViewportWidth, window.mainViewportWidth, 0.0, window.mainViewportHeight + 120);
+//    glMatrixMode(GL_MODELVIEW);
+//    glLoadIdentity();
+//    // TODO: Review this up vector (There's something weird happening here)
+//    gluLookAt( observer.position[X], observer.position[Y] + 10, observer.position[Z],
+//               observer.lookAt[X], observer.lookAt[Y], observer.lookAt[Z],
+//               observer.lookAt[X] - observer.position[X], observer.position[Y], observer.lookAt[Z] - observer.position[Z]);
+//
+//    //--------------------- desenha objectos
+//
+//    enableLights();
+//    drawScene(true);
+
+    //================================================================= Main Viewport
     glEnable(GL_LIGHTING);
     glViewport (0, 0, window.windowWidth, window.windowHeight);
     glMatrixMode(GL_PROJECTION);
@@ -411,10 +434,12 @@ void display(void){
 
     //Desenha a cena refletida
     glPushMatrix();
-        glScalef(1, -1, 1);
-        glTranslated(0,-24,0);
-        iluminacao();
-        drawScene();
+        glTranslated(0, mirrorPosition[Y], 0);
+        glPushMatrix();
+            glScalef(1, -1, 1);
+            iluminacao();
+            drawScene(false);
+        glPopMatrix();
     glPopMatrix();
 
     glDisable(GL_STENCIL_TEST);
@@ -430,47 +455,7 @@ void display(void){
     glDisable (GL_BLEND);
 
     iluminacao();
-    drawScene();
-
-    //drawCeiling();
-    //================================================================= Viewport2
-
-
-    glViewport (window.windowWidth - window.windowWidth/4, 0, window.windowWidth/4, window.windowHeight/4);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho (-window.mainViewportWidth,window.mainViewportWidth, -window.mainViewportWidth,window.mainViewportWidth, -window.mainViewportHeight,window.mainViewportHeight);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    // TODO: Review this up vector (There's something weird happening here)
-    gluLookAt( observer.position[X], observer.position[Y] + 10, observer.position[Z],
-               observer.lookAt[X], observer.lookAt[Y], observer.lookAt[Z],
-               observer.lookAt[X] - observer.position[X], observer.position[Y], observer.lookAt[Z] - observer.position[Z]);
-
-    //--------------------- desenha objectos
-
-    drawScene();
-
-    //================================================================= Viewport3
-
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    glViewport (window.windowWidth - window.windowWidth/4, 0, window.windowWidth/4, window.windowHeight/4);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho (-window.mainViewportWidth,window.mainViewportWidth, -window.mainViewportWidth,window.mainViewportWidth, -window.mainViewportHeight,window.mainViewportHeight);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluLookAt(0,  10, 0,0, 0,0, 0, 0, -1);
-
-
-    //--------------------- Informacao
-    glColor3f(0,0,0);
-    sprintf(texto, "%d - Noite", isNightEnabled);
-    desenhaTexto(texto,-12 ,  + 1 ,- 6);
-    sprintf(texto, "%d - Tecto", isLightEnabled);
-    desenhaTexto(texto,-12 , 1 ,  - 9);
-    sprintf(texto, "%d - Trans", isTransparencyEnable);
-    desenhaTexto(texto,-12 ,1 ,  - 12);
+    drawScene(false);
 
     glutSwapBuffers();
 }
@@ -483,7 +468,7 @@ void updateVisao(){
 
 void keyboard(unsigned char key, int x, int y){
     switch (key) {
-            //--------------------------- Dia/isNightEnabled
+        //--------------------------- Dia/isNightEnabled
         case 'n':
         case 'N':
             isNightEnabled = !isNightEnabled;
