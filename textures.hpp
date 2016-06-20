@@ -8,8 +8,8 @@
 #include "OpenGL.hpp"
 #include "RgbImage.hpp"
 
-#define TEXTURE_CAMP_FLOOR 0
-#define TEXTURE_CAMP_WALL 1
+#define TEXTURE_NIGHT 0
+#define TEXTURE_DAY 1
 #define TEXTURE_WOOD 2
 
 void initTextures();

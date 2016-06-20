@@ -12,5 +12,5 @@ include_directories(${GLUT_INCLUDE_DIRS})
 link_libraries(${GLUT_LIBRARIES})
 
 
-set(SOURCE_FILES main.cpp OpenGL.hpp colors.hpp RgbImage.hpp RgbImage.cpp materials.cpp materials.hpp textures.cpp textures.hpp billiardTable.cpp billiardTable.hpp primitives.cpp primitives.hpp structs.cpp structs.hpp)
+set(SOURCE_FILES main.cpp OpenGL.hpp colors.hpp RgbImage.hpp RgbImage.cpp materials.cpp materials.hpp textures.cpp textures.hpp billiardTable.cpp billiardTable.hpp primitives.cpp primitives.hpp structs.cpp structs.hpp roomWindow.cpp roomWindow.hpp spotLight.cpp spotLight.hpp)
 add_executable(cg_project ${SOURCE_FILES})

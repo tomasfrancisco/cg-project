@@ -26,6 +26,8 @@
 #include "colors.hpp"
 #include "billiardTable.hpp"
 #include "structs.hpp"
+#include "roomWindow.hpp"
+#include "spotLight.hpp"
 
 
 

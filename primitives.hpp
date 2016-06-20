@@ -9,8 +9,8 @@
 #include <math.h>
 
 void drawSquareMesh(GLint width, GLint height);
-
 void drawCube(GLint width, GLint height, GLint depth);
+void drawLight(GLint radius);
 
 
 #endif //CG_PROJECT_PRIMITIVES_HPP

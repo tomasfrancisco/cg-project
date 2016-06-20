@@ -67,3 +67,9 @@ void drawCube(GLint width, GLint height, GLint depth) {
     glPopMatrix();
     glPopMatrix();
 }
+
+void drawLight(GLint radius) {
+    glPushMatrix();
+
+    glPopMatrix();
+}

@@ -9,7 +9,8 @@ GLfloat     timer = 10;
 
 GLfloat billiardTableDimensions[] = { 60.0, 2.0, 30.0 };
 GLfloat mirrorPosition[] = {0, 24, 0};
-GLint   roomDimensions[] = {65, 65, 65};
+GLint   roomDimensions[] = {60, 26, 60};
+GLint   windowDimensions[] = {20, 15};
 
 Window window;
 Observer observer;
@@ -28,11 +29,11 @@ void initWindow() {
 void initObserver() {
     observer.vision[RADIUS]         = 3.0;
     observer.vision[ANGLE]          = 0.5 * PI;
-    observer.vision[INCLINATION]    = 0.1;
+    observer.vision[INCLINATION]    = 0.3;
 
     observer.position[X]            = 0;
-    observer.position[Y]            = 4;
-    observer.position[Z]            = 0.5 * window.mainViewportWidth;
+    observer.position[Y]            = 6;
+    observer.position[Z]            = -19;
 
     observer.lookAt[X]              = observer.position[X] + observer.vision[RADIUS] * cos(observer.vision[ANGLE]);
     observer.lookAt[Y]              = observer.position[Y];
@@ -165,12 +166,18 @@ void drawAxis() {
 void drawRoom(GLint width, GLint height, GLint depth) {
     glEnable(GL_LIGHTING);
     glDisable(GL_COLOR_MATERIAL);
-    initMaterials(MATERIAL_COPPER);
+    initMaterials(MATERIAL_PEARL);
 
     glPushMatrix();
         glTranslatef(-(width / 2), 0.0, -(depth / 2));
 
         drawCube(width, height, depth);
+    glPopMatrix();
+
+    glPushMatrix();
+        glTranslatef(0, roomDimensions[Y] / 2, roomDimensions[Z] / 2);
+        glRotatef(-90, 1, 0, 0);
+        drawWindow(windowDimensions[X], windowDimensions[Y], isNightEnabled);
     glPopMatrix();
     glDisable(GL_LIGHTING);
 }
@@ -191,6 +198,8 @@ void drawScene(GLboolean isMinimap) {
     drawRoom(roomDimensions[X], roomDimensions[Y], roomDimensions[Z]);
 
     drawBilliardTable(billiardTableDimensions[X], billiardTableDimensions[Z]);
+
+    drawSpotLight(5, isNightEnabled);
 
     if (isTransparencyEnable) {
         glDisable(GL_COLOR_MATERIAL);
@@ -392,15 +401,15 @@ void keyboard(unsigned char key, int x, int y){
         case 'N':
             isNightEnabled = !isNightEnabled;
 
-            if (isNightEnabled) {
+            if (!isNightEnabled) {
                 ambientLight.color[R] = 1.0;
                 ambientLight.color[G] = 1.0;
                 ambientLight.color[B] = 1.0;
             }
             else {
-                ambientLight.color[R] = 0.3;
-                ambientLight.color[G] = 0.3;
-                ambientLight.color[B] = 0.3;
+                ambientLight.color[R] = 0.4;
+                ambientLight.color[G] = 0.4;
+                ambientLight.color[B] = 0.4;
             }
 
             glutPostRedisplay();
@@ -415,7 +424,7 @@ void keyboard(unsigned char key, int x, int y){
         case 'g':
         case 'G':
             isTransparencyEnable = !isTransparencyEnable;
-            
+
             glutPostRedisplay();
             break;
         case 'e':
@@ -460,10 +469,19 @@ void teclasNotAscii(int key, int x, int y) {
 }
 
 void Timer(int value) {
-    for(int i = 0; i < 4; i++) {
-        runColisionWithBalls(&balls[i].x, &balls[i].z, &balls[i].rotation, 1.0);
-        for(int j = i + 1; j < 4; j++) {
+    GLfloat radius = 1.0;
 
+    for(int i = 0; i < 4; i++) {
+        runColisionWithBalls(&balls[i].x, &balls[i].z, &balls[i].rotation, radius);
+
+        if ((observer.position[0] >= balls[i].x -1 && observer.position[0] <= balls[i].x +1) && (observer.position[2] >= balls[i].z -1 && observer.position[2] <= balls[i].z +1) )
+            exit(0);
+
+        for(int j = i + 1; j < 4; j++) {
+            if(sqrt(pow(balls[i].x - balls[j].x, 2) + pow(balls[i].z - balls[j].z, 2)) < radius * 2) {
+                balls[i].rotation = PI - balls[i].rotation;
+                balls[j].rotation = PI - balls[j].rotation;
+            }
         }
     }
 
@@ -478,7 +496,7 @@ int main(int argc, char** argv) {
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL);
     glutInitWindowSize (window.windowWidth, window.windowHeight);
     glutInitWindowPosition (400, 100);
-    glutCreateWindow ("{(left,right,up,down) - (n,t,g)");
+    glutCreateWindow ("Billiard Room [TM] (left,right,up,down, w, s, e, d) - (n,t,g)");
 
     init();
     glutSpecialFunc(teclasNotAscii);
