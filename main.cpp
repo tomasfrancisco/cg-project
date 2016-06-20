@@ -364,6 +364,17 @@ void drawRoom() {
     glDisable(GL_TEXTURE_2D);
 }
 
+void drawMirror()
+{
+    glBegin (GL_QUADS);
+    glVertex3f (-Map[0]/4, 15, Map[2]/4);
+    glVertex3f (-Map[0]/4, 15, -Map[2]/4);
+    glVertex3f (Map[0]/4, 15, -Map[2]/4);
+    glVertex3f (Map[0]/4, 15, Map[2]/4);
+    glEnd();
+
+}
+
 void drawScene() {
     drawAxis();
     drawRoom();
@@ -448,6 +459,7 @@ void drawScene() {
 }
 
 
+
 GLvoid resize(GLsizei width, GLsizei height)
 {
     wScreen=width;
@@ -465,7 +477,6 @@ void iluminacao(){
 
 }
 
-
 void display(void){
 
     if (noite)
@@ -476,7 +487,6 @@ void display(void){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 
-
     //================================================================= Viewport1
     glEnable(GL_LIGHTING);
     glViewport (0, 0, wScreen, hScreen);
@@ -485,13 +495,48 @@ void display(void){
     gluPerspective(99.0, wScreen/hScreen, 0.1, 100.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(obsPfin[0], obsPfin[1], obsPfin[2], obsPini[0], obsPini[1], obsPini[2] , 0, 1, 0);
+    gluLookAt(  obsPini[0], obsPini[1], obsPini[2] , obsPfin[0], obsPfin[1], obsPfin[2], 0, 1, 0);
 
 
+    glColorMask(0, 0, 0, 0);
+    glDisable(GL_DEPTH_TEST);
+
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 1, 1);
+
+    glEnable(GL_STENCIL_TEST);
+
+    glColorMask(1, 1, 1, 1);
+    drawMirror();
+    glStencilFunc(GL_EQUAL, 1, 1);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+    glColorMask(1, 1, 1, 1);
+
+    glEnable(GL_DEPTH_TEST);
+
+    //Desenha a cena refletida
+    glPushMatrix();
+        glScalef(1, -1, 1);
+        glTranslated(0,-24,0);
+        iluminacao();
+        drawScene();
+    glPopMatrix();
+
+    glDisable(GL_STENCIL_TEST);
+
+    // desenha o espelho transparente
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f (0., 0., 0., 0.11);
+    drawMirror();
+
+    glDisable (GL_BLEND);
 
     iluminacao();
     drawScene();
 
+    //drawCeiling();
     //================================================================= Viewport2
 
 //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -501,7 +546,7 @@ void display(void){
     glOrtho (-xC,xC, -xC,xC, -zC,zC);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt( obsPini[0], obsPini[1] + 10, obsPini[2], obsPini[0], obsPini[1], obsPini[2],  -(obsPfin[0] - obsPini[0]), obsPini[1], -(obsPfin[2] - obsPini[2]));
+    gluLookAt( obsPini[0], obsPini[1] + 10, obsPini[2], obsPini[0], obsPini[1], obsPini[2],  (obsPfin[0] - obsPini[0]), obsPini[1], (obsPfin[2] - obsPini[2]));
 
     //--------------------- desenha objectos
 
@@ -588,12 +633,12 @@ void keyboard(unsigned char key, int x, int y){
 void teclasNotAscii(int key, int x, int y)
 {
     if(key == GLUT_KEY_UP) {
-        obsPini[0]=obsPini[0]-incVisao*cos(aVisao);
-        obsPini[2]=obsPini[2]-incVisao*sin(aVisao);
-    }
-    if(key == GLUT_KEY_DOWN) {
         obsPini[0]=obsPini[0]+incVisao*cos(aVisao);
         obsPini[2]=obsPini[2]+incVisao*sin(aVisao);
+    }
+    if(key == GLUT_KEY_DOWN) {
+        obsPini[0]=obsPini[0]-incVisao*cos(aVisao);
+        obsPini[2]=obsPini[2]-incVisao*sin(aVisao);
     }
     if(key == GLUT_KEY_LEFT) {
         aVisao = (aVisao - 0.1) ;
@@ -641,7 +686,7 @@ int main(int argc, char** argv){
 
 
     glutInit(&argc, argv);
-    glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
+    glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL);
     glutInitWindowSize (wScreen, hScreen);
     glutInitWindowPosition (400, 100);
     glutCreateWindow ("{(left,right,up,down) - (n,t,g)");
