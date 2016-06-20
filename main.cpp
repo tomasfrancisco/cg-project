@@ -219,8 +219,10 @@ void drawScene() {
 //        glPopMatrix();
 
         glPushMatrix();
-            drawBillardTable(60, 25);
+            drawBilliardTable(60, 25);
         glPopMatrix();
+
+        testBarsColision(1, 1);
 
 //        glPushMatrix();
 //            initMaterials(MATERIAL_GREEN_RUBBER);

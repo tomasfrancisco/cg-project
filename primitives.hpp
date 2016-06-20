@@ -8,7 +8,7 @@
 #include "OpenGL.hpp"
 #include <math.h>
 
-void drawSquareMesh(GLint width, GLint height, bool hasTexture);
+void drawSquareMesh(GLint width, GLint height);
 
 void drawCube(GLint width, GLint height, GLint depth);
 

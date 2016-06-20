@@ -4,6 +4,11 @@
 
 #include "billiardTable.hpp"
 
+#define TOLERANCE 1E-6
+#define PI 3.14159
+
+GLdouble backBar, frontBar, leftBar, rightBar;
+
 void drawTableBar(GLint width, GLint height, GLint depth) {
     glBindTexture(GL_TEXTURE_2D, getTexture(TEXTURE_WOOD));
 
@@ -23,7 +28,7 @@ void drawTableBar(GLint width, GLint height, GLint depth) {
         glPushMatrix();
             glTranslatef(0.0f, height, depth);
             glRotatef(90, 1, 0, 0);
-            drawSquareMesh(width, height, false);
+            drawSquareMesh(width, height);
         glPopMatrix();
 
         glEnable(GL_TEXTURE_2D);
@@ -33,32 +38,32 @@ void drawTableBar(GLint width, GLint height, GLint depth) {
         glPushMatrix();
             glTranslatef(width, 0.0f, 0.0f);
             glRotatef(180, 0, 0, 1);
-            drawSquareMesh(width, depth, true);
+            drawSquareMesh(width, depth);
         glPopMatrix();
 
         //top
         glPushMatrix();
             glTranslatef(0.0f, height, 0.0f);
-            drawSquareMesh(width, depth, true);
+            drawSquareMesh(width, depth);
         glPopMatrix();
 
         //back
         glPushMatrix();
             glRotatef(-90, 1, 0, 0);
-            drawSquareMesh(width, height, true);
+            drawSquareMesh(width, height);
         glPopMatrix();
 
         //left
         glPushMatrix();
             glRotatef(90, 0, 0, 1);
-            drawSquareMesh(height, depth, true);
+            drawSquareMesh(height, depth);
         glPopMatrix();
 
         //right plane
         glPushMatrix();
             glTranslatef(width, height, 0);
             glRotatef(-90, 0, 0, 1);
-            drawSquareMesh(height, depth, true);
+            drawSquareMesh(height, depth);
         glPopMatrix();
     glPopMatrix();
 
@@ -116,7 +121,7 @@ void drawTableCamp(GLint width, GLint height, GLint depth) {
             initMaterials(MATERIAL_GREEN_RUBBER);
 
             glTranslatef(0.0, depth, 0.0);
-            drawSquareMesh(width, height, false);
+            drawSquareMesh(width, height);
         glPopMatrix();
 
         glEnable(GL_TEXTURE_2D);
@@ -126,7 +131,7 @@ void drawTableCamp(GLint width, GLint height, GLint depth) {
         glPushMatrix();
             glCullFace(GL_FRONT);
 
-            drawSquareMesh(width, height, true);
+            drawSquareMesh(width, height);
 
             glCullFace(GL_BACK);
         glPopMatrix();
@@ -134,7 +139,7 @@ void drawTableCamp(GLint width, GLint height, GLint depth) {
         //left
         glPushMatrix();
             glRotatef(90, 0, 0, 1);
-            drawSquareMesh(depth, height, true);
+            drawSquareMesh(depth, height);
         glPopMatrix();
 
 
@@ -142,20 +147,20 @@ void drawTableCamp(GLint width, GLint height, GLint depth) {
         glPushMatrix();
             glTranslatef(width, depth, 0);
             glRotatef(-90, 0, 0, 1);
-            drawSquareMesh(depth, height, true);
+            drawSquareMesh(depth, height);
         glPopMatrix();
 
         //back
         glPushMatrix();
             glRotatef(-90, 1, 0, 0);
-            drawSquareMesh(width, depth, true);
+            drawSquareMesh(width, depth);
         glPopMatrix();
 
         //front
         glPushMatrix();
             glTranslatef(0, depth, height);
             glRotatef(90, 1, 0, 0);
-            drawSquareMesh(width, depth, true);
+            drawSquareMesh(width, depth);
         glPopMatrix();
 
     glPopMatrix();
@@ -165,13 +170,46 @@ void drawTableCamp(GLint width, GLint height, GLint depth) {
     glDisable(GL_TEXTURE_2D);
 }
 
-void drawBillardTable(GLint width, GLint height) {
+void setBarsPositions(GLdouble xSize, GLdouble ySize, GLint depth) {
+    backBar     = depth - ySize;
+    frontBar    = ySize - depth;
+    leftBar     = depth - xSize;
+    rightBar    = xSize - depth;
+}
+
+void drawBilliardTable(GLint width, GLint height) {
+    GLint   depth = 1,
+            altitude = 3;
+
+    GLdouble xSize = ((GLdouble) width / 2);
+    GLdouble ySize = ((GLdouble) height / 2);
+
     glPushMatrix();
-        glTranslatef(-(width / 2), 0, -(height / 2));
+        glTranslatef(-xSize, 0, -ySize);
         glPushMatrix();
-            drawTableBars(width, height, 1, 3);
-            glTranslatef(1, 0.0, 1);
-            drawTableCamp(width - 2, height - 2, 1);
+            drawTableBars(width, height, depth, altitude);
+            glTranslatef(depth, 0.0, depth);
+            drawTableCamp(width - 2, height - 2, depth);
         glPopMatrix();
     glPopMatrix();
+
+    setBarsPositions(xSize, ySize, depth);
+}
+
+void runColisionWithBalls(GLdouble * xPosition, GLdouble * zPosition, GLdouble * rotation) {
+    printf("back: %f, front: %f, left: %f, right: %f\n", backBar, frontBar, leftBar, rightBar);
+
+    if(*xPosition > leftBar && *xPosition < rightBar) {
+        *xPosition += cos(*rotation) / 2;
+    } else {
+        *xPosition -= cos(*rotation) / 2;
+        *rotation = PI - *rotation;
+    }
+
+    if(*zPosition > backBar && *zPosition < frontBar){
+        *zPosition += sin(*rotation) / 2;
+    } else {
+        *zPosition -= sin(*rotation) / 2;
+        *rotation = - *rotation;
+    }
 }

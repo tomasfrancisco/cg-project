@@ -11,6 +11,8 @@
 #include "materials.hpp"
 #include "colors.hpp"
 
-void drawBillardTable(GLint width, GLint height);
+void drawBilliardTable(GLint width, GLint height);
+bool testBarsColision(GLdouble x, GLdouble z);
+void runColisionWithBalls(GLdouble * xPosition, GLdouble * zPosition, GLdouble * rotation);
 
 #endif //CG_PROJECT_BILLARDTABLE_HPP
