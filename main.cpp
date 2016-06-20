@@ -1,36 +1,23 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include "OpenGL.hpp"
-#include "materials.hpp"
-#include "textures.hpp"
-#include "colors.hpp"
-#include "billiardTable.hpp"
 
-#define PI 3.14159
+#include "main.hpp"
 
-#define X 0
-#define Y 1
-#define Z 2
-
-#define RADIUS 0
-#define ANGLE 1
-#define INCLINATION 2
 
 //================================================================================
 //===========================================================Variaveis e constantes
 
 //------------------------------------------------------------ Sistema Coordenadas
-GLfloat  xC=16.0, zC=15.0;
-GLint    wScreen=600, hScreen=500;
+Window window;
+
+void initWindow() {
+    window.mainViewportWidth    = 16.0;
+    window.mainViewportHeight   = 15.0;
+
+    window.windowWidth          = 600;
+    window.windowHeight         = 500;
+}
+
 char     texto[30];
 //------------------------------------------------------------ Observador
-struct Observer {
-    GLdouble    position[3],
-                lookAt[3],
-                upVector[3],
-                vision[3];
-};
 Observer observer;
 
 void initObserver() {
@@ -40,7 +27,7 @@ void initObserver() {
 
     observer.position[X]            = 0;
     observer.position[Y]            = 4;
-    observer.position[Z]            = 0.5 * xC;
+    observer.position[Z]            = 0.5 * window.mainViewportWidth;
 
     observer.lookAt[X]              = observer.position[X] + observer.vision[RADIUS] * cos(observer.vision[ANGLE]);
     observer.lookAt[Y]              = observer.position[Y];
@@ -50,11 +37,6 @@ void initObserver() {
     observer.upVector[Y]            = 1;
     observer.upVector[Z]            = 0;
 }
-
-//GLfloat  rVisao=3.0, aVisao=0.5*PI, incVisao=0.1;
-//
-//GLdouble obsPini[] ={0, 4, static_cast<GLfloat>(0.5*xC)};
-//GLdouble  obsPfin[] ={static_cast<GLfloat>(obsPini[0]+rVisao*cos(aVisao)), obsPini[1], static_cast<GLfloat>(obsPini[2]+rVisao*sin(aVisao))};
 
 //------------------------------------------------------------ Rotacao e Velocidade
 
@@ -78,7 +60,7 @@ GLfloat luzGlobalCor[4]={1.0,1.0,1.0,1.0};   //
 GLint   ligaLuz=1;
 GLfloat localCor[4] ={0.1,0.1,0.1,1.0};
 GLfloat localCorDif[4] ={ 1, 1, 1, 1.0};
-GLfloat localPos[4] ={xC/2, 10.0, xC/2, 1.0};
+GLfloat localPos[4] ={window.mainViewportWidth/2, 10.0, window.mainViewportWidth/2, 1.0};
 GLfloat localAttCon =1.0;
 GLfloat localAttLin =0.05;
 GLfloat localAttQua =0.0;
@@ -109,6 +91,7 @@ void init(void) {
 
     initObserver();
 
+
     initTextures();
     initMaterials(MATERIAL_ESMERALD);
     initLights();
@@ -136,22 +119,22 @@ void drawAxis() {
     //Eixo dos zz
     glColor4f(AZUL);
     glBegin(GL_LINES);
-    glVertex3i(0,0,-xC);
-    glVertex3i(0,0, xC);
+    glVertex3i(0,0,-window.mainViewportWidth);
+    glVertex3i(0,0, window.mainViewportWidth);
     glEnd();
 
     //Eixo dos yy
     glColor4f(VERDE);
     glBegin(GL_LINE);
-    glVertex3i(0,-xC,0);
-    glVertex3i(0,xC,0);
+    glVertex3i(0,-window.mainViewportWidth,0);
+    glVertex3i(0,window.mainViewportWidth,0);
     glEnd();
 
     //Eixo dos xx
     glColor4f(VERMELHO);
     glBegin(GL_LINES);
-    glVertex3i(-xC,0,0);
-    glVertex3i( xC,0,0);
+    glVertex3i(-window.mainViewportWidth,0,0);
+    glVertex3i( window.mainViewportWidth,0,0);
     glEnd();
     glPopMatrix();
 }
@@ -345,8 +328,8 @@ void drawScene() {
 }
 
 GLvoid resize(GLsizei width, GLsizei height) {
-    wScreen = width;
-    hScreen = height;
+    window.windowWidth = width;
+    window.windowHeight = height;
     drawScene();
 }
 
@@ -368,10 +351,10 @@ void display(void){
 
     //================================================================= Viewport1
     glEnable(GL_LIGHTING);
-    glViewport (0, 0, wScreen, hScreen);
+    glViewport (0, 0, window.windowWidth, window.windowHeight);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(99.0, wScreen/hScreen, 0.1, 100.0);
+    gluPerspective(99.0, window.windowWidth/window.windowHeight, 0.1, 100.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(  observer.position[X], observer.position[Y], observer.position[Z],
@@ -423,10 +406,10 @@ void display(void){
     //================================================================= Viewport2
 
 
-    glViewport (wScreen - wScreen/4, 0, wScreen/4, hScreen/4);
+    glViewport (window.windowWidth - window.windowWidth/4, 0, window.windowWidth/4, window.windowHeight/4);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho (-xC,xC, -xC,xC, -zC,zC);
+    glOrtho (-window.mainViewportWidth,window.mainViewportWidth, -window.mainViewportWidth,window.mainViewportWidth, -window.mainViewportHeight,window.mainViewportHeight);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     // TODO: Review this up vector (There's something weird happening here)
@@ -441,10 +424,10 @@ void display(void){
     //================================================================= Viewport3
 
 //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    glViewport (wScreen - wScreen/4, 0, wScreen/4, hScreen/4);
+    glViewport (window.windowWidth - window.windowWidth/4, 0, window.windowWidth/4, window.windowHeight/4);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho (-xC,xC, -xC,xC, -zC,zC);
+    glOrtho (-window.mainViewportWidth,window.mainViewportWidth, -window.mainViewportWidth,window.mainViewportWidth, -window.mainViewportHeight,window.mainViewportHeight);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(0,  10, 0,0, 0,0, 0, 0, -1);
@@ -552,11 +535,11 @@ void Timer(int value) {
 
 //======================================================= MAIN
 int main(int argc, char** argv) {
-
+    initWindow();
 
     glutInit(&argc, argv);
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL);
-    glutInitWindowSize (wScreen, hScreen);
+    glutInitWindowSize (window.windowWidth, window.windowHeight);
     glutInitWindowPosition (400, 100);
     glutCreateWindow ("{(left,right,up,down) - (n,t,g)");
 
