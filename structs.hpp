@@ -28,6 +28,11 @@ struct Window {
             informationViewportHeight;
 };
 
+struct Ball {
+    GLdouble x, y, z;
+    GLdouble rotation;
+};
+
 
 
 

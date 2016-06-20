@@ -39,16 +39,35 @@ void initObserver() {
 }
 
 //------------------------------------------------------------ Rotacao e Velocidade
+Ball balls[4];
 
-GLdouble  rotacoes [4] = {15,30,45,30};
+void initBalls() {
+    balls[0].x = -4;
+    balls[0].y = 2;
+    balls[0].z = 6;
+
+    balls[0].rotation = 15;
+
+    balls[1].x = -10;
+    balls[1].y = 2;
+    balls[1].z = 6;
+
+    balls[1].rotation = 30;
+
+    balls[2].x = 15;
+    balls[2].y = 2;
+    balls[2].z = -7.5;
+
+    balls[2].rotation = 45;
+
+    balls[3].x = 4;
+    balls[3].y = 2;
+    balls[3].z = -7.5;
+
+    balls[3].rotation = 30;
+}
+
 GLfloat   timer = 10;
-
-
-//Bolas
-GLdouble  bolasPos [4][3]= {{-4 , 2, 6},
-                            {-10, 2, 6},
-                            {15,  2, -7.5},
-                            {4,   2, -7.5}};
 
 //------------------------------------------------------------ Iluminacao
 //------------------------------------------------------------ Global (ambiente)
@@ -256,7 +275,7 @@ void drawScene() {
         //black
         glPushMatrix();
         initMaterials(2);
-        glTranslatef(bolasPos[0][0], bolasPos[0][1], bolasPos[0][2]);
+        glTranslatef(balls[0].x, balls[0].y, balls[0].z);
         //glRotatef(rotacoes[1],1,0,0);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
@@ -264,21 +283,21 @@ void drawScene() {
         //white
         glPushMatrix();
         initMaterials(3);
-        glTranslatef(bolasPos[1][0], bolasPos[1][1], bolasPos[1][2]);
+        glTranslatef(balls[1].x, balls[1].y, balls[1].z);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //red
         glPushMatrix();
         initMaterials(4);
-        glTranslatef(bolasPos[2][0], bolasPos[2][1], bolasPos[2][2]);
+        glTranslatef(balls[2].x, balls[2].y, balls[2].z);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         glPushMatrix();
 
         initMaterials(5);
-        glTranslatef(bolasPos[3][0], bolasPos[3][1], bolasPos[3][2]);
+        glTranslatef(balls[3].x, balls[3].y, balls[3].z);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
@@ -293,28 +312,28 @@ void drawScene() {
         //black
         glPushMatrix();
         initMaterials(2);
-        glTranslatef(bolasPos[0][0], bolasPos[0][1], bolasPos[0][2]);
+        glTranslatef(balls[0].x, balls[0].y, balls[0].z);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //white
         glPushMatrix();
         initMaterials(3);
-        glTranslatef(bolasPos[1][0], bolasPos[1][1], bolasPos[1][2]);
+        glTranslatef(balls[1].x, balls[1].y, balls[1].z);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //red
         glPushMatrix();
         initMaterials(4);
-        glTranslatef(bolasPos[2][0], bolasPos[2][1], bolasPos[2][2]);
+        glTranslatef(balls[2].x, balls[2].y, balls[2].z);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //cyan
         glPushMatrix();
         initMaterials(5);
-        glTranslatef(bolasPos[3][0], bolasPos[3][1], bolasPos[3][2]);
+        glTranslatef(balls[3].x, balls[3].y, balls[3].z);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
     }
@@ -521,7 +540,7 @@ void teclasNotAscii(int key, int x, int y) {
 
 void Timer(int value) {
     for(int i = 0; i < 4; i++) {
-        runColisionWithBalls(&bolasPos[i][0], &bolasPos[i][2], &rotacoes[i], 1.0);
+        runColisionWithBalls(&balls[i].x, &balls[i].z, &balls[i].rotation, 1.0);
         for(int j = i + 1; j < 4; j++) {
 
         }
@@ -536,6 +555,7 @@ void Timer(int value) {
 //======================================================= MAIN
 int main(int argc, char** argv) {
     initWindow();
+    initBalls();
 
     glutInit(&argc, argv);
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL);
