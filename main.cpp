@@ -9,6 +9,7 @@ GLfloat     timer = 10;
 
 GLfloat billiardTableDimensions[] = { 60.0, 2.0, 30.0 };
 GLfloat mirrorPosition[] = {0, 24, 0};
+GLint   roomDimensions[] = {65, 65, 65};
 
 Window window;
 Observer observer;
@@ -94,6 +95,9 @@ void initAmbientLight() {
     ambientLight.color[G] = 1.0;
     ambientLight.color[B] = 1.0;
     ambientLight.color[A] = 1.0;
+
+    //Ambient Light
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientLight.color);
 }
 
 void initLights() {
@@ -102,8 +106,6 @@ void initLights() {
 }
 
 void enableLights(void){
-    //Ambient Light
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientLight.color);
     //Top Light
     glLightfv(GL_LIGHT0, GL_POSITION,      topLight.position );
     glLightfv(GL_LIGHT0, GL_AMBIENT,       topLight.color );
@@ -117,7 +119,6 @@ void init(void) {
     glClearColor(WHITE);
     glShadeModel(GL_SMOOTH);
 
-    glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
 
 
@@ -153,105 +154,30 @@ void drawAxis() {
     //Eixo dos zz
     glColor4f(AZUL);
     glBegin(GL_LINES);
-    glVertex3i(0,4, -window.mainViewportWidth);
-    glVertex3i(0,4, window.mainViewportWidth);
+    glVertex3i(0,4, - (billiardTableDimensions[Z] / 2));
+    glVertex3i(0,4, billiardTableDimensions[Z] / 2);
     glEnd();
 
     //Eixo dos xx
     glColor4f(VERMELHO);
     glBegin(GL_LINES);
-    glVertex3i(-window.mainViewportWidth,0,0);
-    glVertex3i( window.mainViewportWidth,0,0);
+    glVertex3i(- (billiardTableDimensions[X] / 2), 4, 0);
+    glVertex3i(billiardTableDimensions[X] / 2, 4, 0);
     glEnd();
     glPopMatrix();
 }
 
-void drawRoom() {
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Chao y=0
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, getTexture(TEXTURE_CAMP_FLOOR));
+void drawRoom(GLint width, GLint height, GLint depth) {
+    glEnable(GL_LIGHTING);
+    glDisable(GL_COLOR_MATERIAL);
+    initMaterials(MATERIAL_COPPER);
+
     glPushMatrix();
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3i(-billiardTableDimensions[0] / 2, 0, billiardTableDimensions[2] / 2);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3i(billiardTableDimensions[0] / 2, 0, billiardTableDimensions[2] / 2);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3i(billiardTableDimensions[0] / 2, 0, -billiardTableDimensions[2] / 2);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3i(-billiardTableDimensions[0] / 2, 0, -billiardTableDimensions[2] / 2);
-    glEnd();
+        glTranslatef(-(width / 2), 0.0, -(depth / 2));
+
+        drawCube(width, height, depth);
     glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Paredes X
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, getTexture(TEXTURE_CAMP_WALL));
-    glPushMatrix();
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3i(-billiardTableDimensions[0] / 2, 0, billiardTableDimensions[2] / 2);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3i(-billiardTableDimensions[0] / 2, billiardTableDimensions[1], billiardTableDimensions[2] / 2);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3i(-billiardTableDimensions[0] / 2, billiardTableDimensions[1], -billiardTableDimensions[2] / 2);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3i(-billiardTableDimensions[0] / 2, 0, -billiardTableDimensions[2] / 2);
-    glEnd();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, getTexture(TEXTURE_CAMP_WALL));
-    glPushMatrix();
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3i(billiardTableDimensions[0] / 2, 0, billiardTableDimensions[2] / 2);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3i(billiardTableDimensions[0] / 2, billiardTableDimensions[1], billiardTableDimensions[2] / 2);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3i(billiardTableDimensions[0] / 2, billiardTableDimensions[1], -billiardTableDimensions[2] / 2);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3i(billiardTableDimensions[0] / 2, 0, -billiardTableDimensions[2] / 2);
-    glEnd();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Paredes Z
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, getTexture(TEXTURE_CAMP_WALL));
-    glPushMatrix();
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3i(-billiardTableDimensions[0] / 2, 0, -billiardTableDimensions[2] / 2);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3i(billiardTableDimensions[0] / 2, 0, -billiardTableDimensions[2] / 2);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3i(billiardTableDimensions[0] / 2, billiardTableDimensions[1], -billiardTableDimensions[2] / 2);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3i(-billiardTableDimensions[0] / 2, billiardTableDimensions[1], -billiardTableDimensions[2] / 2);
-    glEnd();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, getTexture(TEXTURE_CAMP_WALL));
-    glPushMatrix();
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3i(-billiardTableDimensions[0] / 2, 0, billiardTableDimensions[2] / 2);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3i(billiardTableDimensions[0] / 2, 0, billiardTableDimensions[2] / 2);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3i(billiardTableDimensions[0] / 2, billiardTableDimensions[1], billiardTableDimensions[2] / 2);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3i(-billiardTableDimensions[0] / 2, billiardTableDimensions[1], billiardTableDimensions[2] / 2);
-    glEnd();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
 }
 
 void drawMirror() {
@@ -265,26 +191,24 @@ void drawMirror() {
 }
 
 void drawScene(GLboolean isMinimap) {
-    //glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BITS);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BITS);
     if(isMinimap) drawAxis();
+    drawRoom(roomDimensions[X], roomDimensions[Y], roomDimensions[Z]);
 
-    drawBilliardTable(60, 20);
+    drawBilliardTable(billiardTableDimensions[X], billiardTableDimensions[Z]);
 
     if (isTransparencyEnable) {
-
         glDisable(GL_COLOR_MATERIAL);
         glEnable(GL_LIGHTING);
+        glEnable(GL_BLEND);
 
-        //glDisable(GL_COLOR_MATERIAL);
-        //glEnable(GL_LIGHTING);
         enableLights();
 
         //black
         glPushMatrix();
-        initMaterials(2);
-        glTranslatef(balls[0].x, balls[0].y, balls[0].z);
-        //glRotatef(rotacoes[1],1,0,0);
-        glutSolidSphere(1, 250, 250);
+            initMaterials(2);
+            glTranslatef(balls[0].x, balls[0].y, balls[0].z);
+            glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //white
@@ -369,11 +293,11 @@ void display(void) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho (-window.mainViewportWidth, window.mainViewportWidth,
-             -window.mainViewportWidth,window.mainViewportWidth,
+             -window.mainViewportWidth, window.mainViewportWidth,
              -window.mainViewportHeight,window.mainViewportHeight);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0,  10, 0,0, 0,0, 0, 0, -1);
+    gluLookAt(0, 10, 0, 0, 0, 0, 0, 0, -1);
 
 
     //--------------------- Informacao
@@ -385,22 +309,22 @@ void display(void) {
     sprintf(texto, "%d - Trans", isTransparencyEnable);
     desenhaTexto(texto,-12 ,23 ,  - 12);
 
-//    //================================================================= Minimap
-//    glViewport (window.windowWidth - window.windowWidth/4, 0, window.windowWidth/4, window.windowHeight/4);
-//    glMatrixMode(GL_PROJECTION);
-//    glLoadIdentity();
-//    glOrtho (-window.mainViewportWidth, window.mainViewportWidth, -window.mainViewportWidth, window.mainViewportWidth, 0.0, window.mainViewportHeight + 120);
-//    glMatrixMode(GL_MODELVIEW);
-//    glLoadIdentity();
-//    // TODO: Review this up vector (There's something weird happening here)
-//    gluLookAt( observer.position[X], observer.position[Y] + 10, observer.position[Z],
-//               observer.lookAt[X], observer.lookAt[Y], observer.lookAt[Z],
-//               observer.lookAt[X] - observer.position[X], observer.position[Y], observer.lookAt[Z] - observer.position[Z]);
-//
-//    //--------------------- desenha objectos
-//
-//    enableLights();
-//    drawScene(true);
+    //================================================================= Minimap
+    glViewport (window.windowWidth - window.windowWidth/4, 0, window.windowWidth/4, window.windowHeight/4);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho (-window.mainViewportWidth, window.mainViewportWidth, -window.mainViewportWidth, window.mainViewportWidth, 0.0, window.mainViewportHeight + 120);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    // TODO: Review this up vector (There's something weird happening here)
+    gluLookAt( observer.position[X], observer.position[Y] + 10, observer.position[Z],
+               observer.lookAt[X], observer.lookAt[Y], observer.lookAt[Z],
+               observer.lookAt[X] - observer.position[X], observer.position[Y], observer.lookAt[Z] - observer.position[Z]);
+
+    //--------------------- desenha objectos
+
+    enableLights();
+    drawScene(true);
 
     //================================================================= Main Viewport
     glEnable(GL_LIGHTING);
@@ -411,9 +335,8 @@ void display(void) {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(  observer.position[X], observer.position[Y], observer.position[Z],
-                observer.lookAt[X], observer.lookAt[Y], observer.lookAt[Z],
+                observer.lookAt[X],   observer.lookAt[Y],   observer.lookAt[Z],
                 observer.upVector[X], observer.upVector[Y], observer.upVector[Z]);
-
 
     glColorMask(0, 0, 0, 0);
     glDisable(GL_DEPTH_TEST);
@@ -453,6 +376,7 @@ void display(void) {
     drawMirror();
 
     glDisable (GL_BLEND);
+    glDisable(GL_COLOR_MATERIAL);
 
     iluminacao();
     drawScene(false);
