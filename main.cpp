@@ -95,9 +95,6 @@ void initAmbientLight() {
     ambientLight.color[G] = 1.0;
     ambientLight.color[B] = 1.0;
     ambientLight.color[A] = 1.0;
-
-    //Ambient Light
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientLight.color);
 }
 
 void initLights() {
@@ -106,6 +103,8 @@ void initLights() {
 }
 
 void enableLights(void){
+    //Ambient Light
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientLight.color);
     //Top Light
     glLightfv(GL_LIGHT0, GL_POSITION,      topLight.position );
     glLightfv(GL_LIGHT0, GL_AMBIENT,       topLight.color );
@@ -118,18 +117,7 @@ void enableLights(void){
 void init(void) {
     glClearColor(WHITE);
     glShadeModel(GL_SMOOTH);
-
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
-
-
-    initObserver();
-    initBalls();
-    initLights();
-
-    initTextures();
-    initMaterials(MATERIAL_ESMERALD);
-    enableLights();
-
 
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
@@ -137,6 +125,13 @@ void init(void) {
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_NORMALIZE);
+
+    initObserver();
+    initBalls();
+    initLights();
+    enableLights();
+
+    initTextures();
 }
 
 void desenhaTexto(char *string, GLfloat x, GLfloat y, GLfloat z) {
@@ -398,17 +393,16 @@ void keyboard(unsigned char key, int x, int y){
             isNightEnabled = !isNightEnabled;
 
             if (isNightEnabled) {
-                ambientLight.color[R]=1.0;
-                ambientLight.color[G]=1.0;
-                ambientLight.color[B]=1.0;
+                ambientLight.color[R] = 1.0;
+                ambientLight.color[G] = 1.0;
+                ambientLight.color[B] = 1.0;
             }
             else {
-                ambientLight.color[R]=0.3;
-                ambientLight.color[G]=0.3;
-                ambientLight.color[B]=0.3;
+                ambientLight.color[R] = 0.3;
+                ambientLight.color[G] = 0.3;
+                ambientLight.color[B] = 0.3;
             }
 
-            initLights();
             glutPostRedisplay();
             break;
             //--------------------------- Iluminacaoda sala
@@ -418,10 +412,10 @@ void keyboard(unsigned char key, int x, int y){
 
             glutPostRedisplay();
             break;
-
         case 'g':
         case 'G':
             isTransparencyEnable = !isTransparencyEnable;
+            
             glutPostRedisplay();
             break;
         case 'e':
