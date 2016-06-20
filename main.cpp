@@ -1,22 +1,11 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include "OpenGL.hpp"
-#include "materiais.hpp"
-#include "RgbImage.hpp"
-
-//==================================================================== Definir cores
-#define AZUL     0.0, 0.0, 1.0, 1.0
-#define VERMELHO 1.0, 0.0, 0.0, 1.0
-#define AMARELO  1.0, 1.0, 0.0, 1.0
-#define VERDE    0.0, 1.0, 0.0, 1.0
-#define LARANJA  0.8, 0.6, 0.1, 1.0
-#define WHITE    1.0, 1.0, 1.0, 1.0
-#define BLACK    0.0, 0.0, 0.0, 1.0
-#define GRAY1    0.2, 0.2, 0.2, 1.0
-#define GRAY2    0.93, 0.93, 0.93, 1.0
-
+#include "materials.hpp"
+#include "textures.hpp"
+#include "colors.hpp"
+#include "billiardTable.hpp"
 
 //================================================================================
 //===========================================================Variaveis e constantes
@@ -28,7 +17,7 @@ char     texto[30];
 //------------------------------------------------------------ Observador
 GLfloat  PI = 3.14159;
 GLfloat  rVisao=3.0, aVisao=0.5*PI, incVisao=0.1;
-GLfloat  obsPini[] ={0, 4, static_cast<GLfloat>(0.5*xC)};
+GLfloat  obsPini[] ={4, 6, static_cast<GLfloat>(0.5*xC)};
 GLfloat  obsPfin[] ={static_cast<GLfloat>(obsPini[0]-rVisao*cos(aVisao)), obsPini[1], static_cast<GLfloat>(obsPini[2]-rVisao*sin(aVisao))};
 
 //------------------------------------------------------------ Rotacao e Velocidade
@@ -55,47 +44,10 @@ GLfloat localAttCon =1.0;
 GLfloat localAttLin =0.05;
 GLfloat localAttQua =0.0;
 
-// textures
-GLuint      texture[20];
-RgbImage    imag;
+
 
 GLfloat Map[] = { 60.0, 5.0, 30.0 };
 GLint transp = 0;
-
-//================================================================================
-//=========================================================================== INIT
-//================================================================================
-
-void initTextures() {
-    //----------------------------------------- Chao
-    glGenTextures(1, &texture[0]);
-    glBindTexture(GL_TEXTURE_2D, texture[0]);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    imag.LoadBmpFile("textures/chao.bmp");
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                 imag.GetNumCols(),
-                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 imag.ImageData());
-
-    //----------------------------------------- Parede
-    glGenTextures(1, &texture[1]);
-    glBindTexture(GL_TEXTURE_2D, texture[1]);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    imag.LoadBmpFile("textures/wall.bmp");
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
-                 imag.GetNumCols(),
-                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 imag.ImageData());
-}
-
 
 void initLights(void){
     //Ambiente
@@ -109,119 +61,6 @@ void initLights(void){
     glLightf (GL_LIGHT0, GL_QUADRATIC_ATTENUATION,localAttQua) ;
 }
 
-void initMaterials(int material) {
-    switch (material){
-        case 0: //esmerald
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  esmeraldAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  esmeraldDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, esmeraldSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,esmeraldCoef);
-            break;
-        case 1: //jade
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  jadeAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  jadeDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, jadeSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,jadeCoef);
-            break;
-        case 2: //obsidian
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  obsidianAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  obsidianDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, obsidianSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,obsidianCoef);
-            break;
-        case 3: //pearl
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  pearlAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  pearlDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, pearlSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,pearlCoef);
-            break;
-        case 4: //ruby
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  rubyAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  rubyDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, rubySpec);
-            glMateriali (GL_FRONT,GL_SHININESS,rubyCoef);
-            break;
-        case 5: //turquoise
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  turquoiseAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  turquoiseDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, turquoiseSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,turquoiseCoef);
-            break;
-        case 6: //brass
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  brassAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  brassDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, brassSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,brassCoef);
-            break;
-        case 7: //bronze
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  bronzeAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  bronzeDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, bronzeSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,bronzeCoef);
-            break;
-        case 8: //chrome
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  chromeAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  chromeDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, chromeSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,chromeCoef);
-            break;
-        case 9: //copper
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  copperAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  copperDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, copperSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,copperCoef);
-            break;
-        case 10: //gold
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  goldAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  goldDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, goldSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,goldCoef);
-            break;
-        case 11: //silver
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  silverAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  silverDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, silverSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,silverCoef);
-            break;
-        case 12: //blackPlastic
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  blackPlasticAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  blackPlasticDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, blackPlasticSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,blackPlasticCoef);
-            break;
-        case 13: //cyankPlastic
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  cyanPlasticAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  cyanPlasticDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, cyanPlasticSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,cyanPlasticCoef);
-            break;
-        case 14: //greenPlastic
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  greenPlasticAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  greenPlasticDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, greenPlasticSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,greenPlasticCoef);
-            break;
-        case 15: //redPlastic
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  redPlasticAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  redPlasticDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, redPlasticSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,redPlasticCoef);
-            break;
-        case 16: //yellowPlastic
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  whitePlasticAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  whitePlasticDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, whitePlasticSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,whitePlasticCoef);
-            break;
-        case 17: //yellowPlastic
-            glMaterialfv(GL_FRONT,GL_AMBIENT,  yellowPlasticAmb  );
-            glMaterialfv(GL_FRONT,GL_DIFFUSE,  yellowPlasticDif );
-            glMaterialfv(GL_FRONT,GL_SPECULAR, yellowPlasticSpec);
-            glMateriali (GL_FRONT,GL_SHININESS,yellowPlasticCoef);
-            break;
-    }
-}
-
 void init(void) {
     glClearColor(WHITE);
     glShadeModel(GL_SMOOTH);
@@ -230,7 +69,7 @@ void init(void) {
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
 
     initTextures();
-    initMaterials(1);
+    initMaterials(MATERIAL_ESMERALD);
     initLights();
 
 
@@ -238,6 +77,8 @@ void init(void) {
     glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
     glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_NORMALIZE);
 }
 
 void desenhaTexto(char *string, GLfloat x, GLfloat y, GLfloat z) {
@@ -248,7 +89,7 @@ void desenhaTexto(char *string, GLfloat x, GLfloat y, GLfloat z) {
 }
 
 void drawAxis() {
-
+    glPushMatrix();
     glDisable(GL_COLOR_MATERIAL);
     glDisable(GL_LIGHTING);
     //Eixo dos zz
@@ -271,12 +112,13 @@ void drawAxis() {
     glVertex3i(-xC,0,0);
     glVertex3i( xC,0,0);
     glEnd();
+    glPopMatrix();
 }
 
 void drawRoom() {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Chao y=0
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glBindTexture(GL_TEXTURE_2D, getTexture(TEXTURE_CAMP_FLOOR));
     glPushMatrix();
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
@@ -294,7 +136,7 @@ void drawRoom() {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Paredes X
 
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glBindTexture(GL_TEXTURE_2D, getTexture(TEXTURE_CAMP_WALL));
     glPushMatrix();
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
@@ -310,7 +152,7 @@ void drawRoom() {
     glDisable(GL_TEXTURE_2D);
 
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glBindTexture(GL_TEXTURE_2D, getTexture(TEXTURE_CAMP_WALL));
     glPushMatrix();
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
@@ -328,7 +170,7 @@ void drawRoom() {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Paredes Z
 
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glBindTexture(GL_TEXTURE_2D, getTexture(TEXTURE_CAMP_WALL));
     glPushMatrix();
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
@@ -344,7 +186,7 @@ void drawRoom() {
     glDisable(GL_TEXTURE_2D);
 
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glBindTexture(GL_TEXTURE_2D, getTexture(TEXTURE_CAMP_WALL));
     glPushMatrix();
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
@@ -362,106 +204,46 @@ void drawRoom() {
 
 void drawScene() {
     drawAxis();
-    drawRoom();
+    //drawRoom();
 
-    if (transp) {
-
-
-        initLights();
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        //black
-        glPushMatrix();
-        glColor4f(0.0, 0.0, 0.0, 0.4);
-        glTranslatef(bola1Pos[0],bola1Pos[1],bola1Pos[2]);
-        //glRotatef(rotacoes[1],1,0,0);
-        glutSolidSphere(1, 250, 250);
-        glPopMatrix();
-
-        //white
-        glPushMatrix();
-        glColor4f(1.0, 1.0, 1.0, 0.4);
-        glTranslatef(-12, 2, 6);
-        glutSolidSphere(1, 250, 250);
-        glPopMatrix();
-
-        //red
-        glPushMatrix();
-        glColor4f(1.0, 0.0, 0.0, 0.4);
-        glTranslatef(15, 2, -12);
-        glutSolidSphere(1, 250, 250);
-        glPopMatrix();
-
-        //cyan
-        glPushMatrix();
-        glColor4f(0.0, 0.8, 1.0, 0.4);
-        glTranslatef(2, 2, 3);
-        glutSolidSphere(1, 250, 250);
-        glPopMatrix();
-
-        glDisable(GL_BLEND);
-
-    }else
-    {
-        glDisable(GL_COLOR_MATERIAL);
-        glEnable(GL_LIGHTING);
+        //glDisable(GL_COLOR_MATERIAL);
+        //glEnable(GL_LIGHTING);
         initLights();
 
-        //black
+
+
+//        glPushMatrix();
+//            initMaterials(1);
+//            glTranslatef(2, 2, 3);
+//            glutSolidSphere(1, 250, 250);
+//        glPopMatrix();
+
         glPushMatrix();
-        initMaterials(2);
-        glTranslatef(bola1Pos[0],bola1Pos[1],bola1Pos[2]);
-        glRotatef(rotacoes[1],1,0,0);
+            drawBillardTable(60, 25);
         glPopMatrix();
 
-        //white
-        glPushMatrix();
-        initMaterials(3);
-        glTranslatef(-12, 2, 6);
-        glutSolidSphere(1, 250, 250);
-        glPopMatrix();
-
-        //red
-        glPushMatrix();
-        initMaterials(4);
-        glTranslatef(15, 2, -12);
-        glutSolidSphere(1, 250, 250);
-        glPopMatrix();
-
-        //cyan
-        glPushMatrix();
-        initMaterials(5);
-        glTranslatef(2, 2, 3);
-        glutSolidSphere(1, 250, 250);
-        glPopMatrix();
-    }
-
+//        glPushMatrix();
+//            initMaterials(MATERIAL_GREEN_RUBBER);
+//            drawSquareMesh(5.0f, 5.0f, 10, false);
+//        glPopMatrix();
 
     glutPostRedisplay();
 }
 
-
-GLvoid resize(GLsizei width, GLsizei height)
-{
-    wScreen=width;
-    hScreen=height;
+GLvoid resize(GLsizei width, GLsizei height) {
+    wScreen = width;
+    hScreen = height;
     drawScene();
 }
 
-//======================================================================== ILUMINCCAO
-void iluminacao(){
-
+void iluminacao() {
     if (ligaLuz)
         glEnable(GL_LIGHT0);
     else
         glDisable(GL_LIGHT0);
-
 }
 
-
 void display(void){
-
     if (noite)
         glClearColor(GRAY1);
     else
@@ -469,8 +251,7 @@ void display(void){
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    //================================================================= Viewport1
-
+    //================================================================= Mini-Map
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glViewport (wScreen - wScreen/4, 0, wScreen/4, hScreen/4);
     glMatrixMode(GL_PROJECTION);
@@ -480,9 +261,7 @@ void display(void){
     glLoadIdentity();
     gluLookAt( 0, 10,0, 0,0,0, 0, 0, -1);
 
-
-    //--------------------- desenha objectos
-
+    //--------------------- Desenha cena
     drawScene();
 
     //--------------------- Informacao
@@ -504,20 +283,18 @@ void display(void){
     glLoadIdentity();
     gluLookAt(obsPini[0], obsPini[1], obsPini[2], obsPfin[0], obsPfin[1], obsPfin[2], 0, 1, 0);
 
+    //--------------------- Desenha cena
     iluminacao();
     drawScene();
+
     glutSwapBuffers();
-
 }
-
 
 void updateVisao(){
     obsPfin[0] =obsPini[0]+rVisao*cos(aVisao);
     obsPfin[2] =obsPini[2]-rVisao*sin(aVisao);
     glutPostRedisplay();
 }
-
-
 
 //======================================================= EVENTOS
 void keyboard(unsigned char key, int x, int y){
@@ -545,17 +322,18 @@ void keyboard(unsigned char key, int x, int y){
             transp = !transp;
             glutPostRedisplay();
             break;
-
+            //--------------------------- Space
+        case 32:
+            obsPini[1]++;
+            break;
             //--------------------------- Escape
         case 27:
             exit(0);
             break;
-
     }
 }
 
-void teclasNotAscii(int key, int x, int y)
-{
+void teclasNotAscii(int key, int x, int y) {
     if(key == GLUT_KEY_UP) {
         obsPini[0]=obsPini[0]+incVisao*cos(aVisao);
         obsPini[2]=obsPini[2]-incVisao*sin(aVisao);
@@ -574,23 +352,24 @@ void teclasNotAscii(int key, int x, int y)
     updateVisao();
 }
 
-void Timer(int value)
-{
+void Timer(int value) {
     //bola1Pos[0] = bola1Pos[0] + cos (rotacoes[1]);
     //bola1Pos[2] = bola1Pos[2] + sin (rotacoes[1]);
+    if(obsPini[1] >= -4) {
+        obsPini[1]--;
+    }
     glutPostRedisplay();
     glutTimerFunc(timer, Timer, 1);
 }
 
-void Timer2(int value)
-{
+void Timer2(int value) {
     //rotacoes[1] = rotacoes[1] +10;
     glutPostRedisplay();
     glutTimerFunc(timer, Timer, 1);
 }
 
 //======================================================= MAIN
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
 
     glutInit(&argc, argv);
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
