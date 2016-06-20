@@ -7,6 +7,16 @@
 #include "colors.hpp"
 #include "billiardTable.hpp"
 
+#define PI 3.14159
+
+#define X 0
+#define Y 1
+#define Z 2
+
+#define RADIUS 0
+#define ANGLE 1
+#define INCLINATION 2
+
 //================================================================================
 //===========================================================Variaveis e constantes
 
@@ -15,11 +25,36 @@ GLfloat  xC=16.0, zC=15.0;
 GLint    wScreen=600, hScreen=500;
 char     texto[30];
 //------------------------------------------------------------ Observador
-GLfloat  PI = 3.14159;
-GLfloat  rVisao=3.0, aVisao=0.5*PI, incVisao=0.1;
+struct Observer {
+    GLdouble    position[3],
+                lookAt[3],
+                upVector[3],
+                vision[3];
+};
+Observer observer;
 
-GLdouble obsPini[] ={0, 4, static_cast<GLfloat>(0.5*xC)};
-GLdouble  obsPfin[] ={static_cast<GLfloat>(obsPini[0]+rVisao*cos(aVisao)), obsPini[1], static_cast<GLfloat>(obsPini[2]+rVisao*sin(aVisao))};
+void initObserver() {
+    observer.vision[RADIUS]         = 3.0;
+    observer.vision[ANGLE]          = 0.5 * PI;
+    observer.vision[INCLINATION]    = 0.1;
+
+    observer.position[X]            = 0;
+    observer.position[Y]            = 4;
+    observer.position[Z]            = 0.5 * xC;
+
+    observer.lookAt[X]              = observer.position[X] + observer.vision[RADIUS] * cos(observer.vision[ANGLE]);
+    observer.lookAt[Y]              = observer.position[Y];
+    observer.lookAt[Z]              = observer.position[Z] + observer.vision[RADIUS] * sin(observer.vision[ANGLE]);
+
+    observer.upVector[X]            = 0;
+    observer.upVector[Y]            = 1;
+    observer.upVector[Z]            = 0;
+}
+
+//GLfloat  rVisao=3.0, aVisao=0.5*PI, incVisao=0.1;
+//
+//GLdouble obsPini[] ={0, 4, static_cast<GLfloat>(0.5*xC)};
+//GLdouble  obsPfin[] ={static_cast<GLfloat>(obsPini[0]+rVisao*cos(aVisao)), obsPini[1], static_cast<GLfloat>(obsPini[2]+rVisao*sin(aVisao))};
 
 //------------------------------------------------------------ Rotacao e Velocidade
 
@@ -71,6 +106,8 @@ void init(void) {
 
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
+
+    initObserver();
 
     initTextures();
     initMaterials(MATERIAL_ESMERALD);
@@ -219,6 +256,7 @@ void drawMirror()
 }
 
 void drawScene() {
+    //glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BITS);
     drawAxis();
 
     drawBilliardTable(60, 20);
@@ -336,7 +374,9 @@ void display(void){
     gluPerspective(99.0, wScreen/hScreen, 0.1, 100.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(  obsPini[0], obsPini[1], obsPini[2] , obsPfin[0], obsPfin[1], obsPfin[2], 0, 1, 0);
+    gluLookAt(  observer.position[X], observer.position[Y], observer.position[Z],
+                observer.lookAt[X], observer.lookAt[Y], observer.lookAt[Z],
+                observer.upVector[X], observer.upVector[Y], observer.upVector[Z]);
 
 
     glColorMask(0, 0, 0, 0);
@@ -389,7 +429,10 @@ void display(void){
     glOrtho (-xC,xC, -xC,xC, -zC,zC);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt( obsPini[0], obsPini[1] + 10, obsPini[2], obsPini[0], obsPini[1], obsPini[2],  (obsPfin[0] - obsPini[0]), obsPini[1], (obsPfin[2] - obsPini[2]));
+    // TODO: Review this up vector (There's something weird happening here)
+    gluLookAt( observer.position[X], observer.position[Y] + 10, observer.position[Z],
+               observer.lookAt[X], observer.lookAt[Y], observer.lookAt[Z],
+               observer.lookAt[X] - observer.position[X], observer.position[Y], observer.lookAt[Z] - observer.position[Z]);
 
     //--------------------- desenha objectos
 
@@ -420,8 +463,8 @@ void display(void){
 }
 
 void updateVisao(){
-    obsPfin[0] =obsPini[0]+rVisao*cos(aVisao);
-    obsPfin[2] =obsPini[2]+rVisao*sin(aVisao);
+    observer.lookAt[X] = observer.position[X] + observer.vision[RADIUS] * cos(observer.vision[ANGLE]);
+    observer.lookAt[Z] = observer.position[Z] + observer.vision[RADIUS] * sin(observer.vision[ANGLE]);
     glutPostRedisplay();
 }
 
@@ -452,19 +495,19 @@ void keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         case 'e':
-            obsPini[1] += 1;
+            observer.position[Y] += 1;
             break;
         case 'd':
-            obsPini[1] -= 1;
+            observer.position[Y] -= 1;
             break;
         case 'w':
         case 'W':
-            obsPfin[1] += 1;
+            observer.lookAt[Y] += 1;
             break;
 
         case 's':
         case 'S':
-            obsPfin[1] -= 1;
+            observer.lookAt[Y] -= 1;
             break;
             //--------------------------- Escape
         case 27:
@@ -475,18 +518,18 @@ void keyboard(unsigned char key, int x, int y){
 
 void teclasNotAscii(int key, int x, int y) {
     if(key == GLUT_KEY_UP) {
-        obsPini[0]=obsPini[0]+incVisao*cos(aVisao);
-        obsPini[2]=obsPini[2]+incVisao*sin(aVisao);
+        observer.position[X] = observer.position[X] + observer.vision[INCLINATION] * cos(observer.vision[ANGLE]);
+        observer.position[Z] = observer.position[Z] + observer.vision[INCLINATION] * sin(observer.vision[ANGLE]);
     }
     if(key == GLUT_KEY_DOWN) {
-        obsPini[0]=obsPini[0]-incVisao*cos(aVisao);
-        obsPini[2]=obsPini[2]-incVisao*sin(aVisao);
+        observer.position[X] = observer.position[X] - observer.vision[INCLINATION] * cos(observer.vision[ANGLE]);
+        observer.position[Z] = observer.position[Z] - observer.vision[INCLINATION] * sin(observer.vision[ANGLE]);
     }
     if(key == GLUT_KEY_LEFT) {
-        aVisao = (aVisao - 0.1) ;
+        observer.vision[ANGLE] = (observer.vision[ANGLE] - 0.1) ;
     }
     if(key == GLUT_KEY_RIGHT) {
-        aVisao = (aVisao + 0.1) ;
+        observer.vision[ANGLE] = (observer.vision[ANGLE] + 0.1) ;
 
     }
     updateVisao();

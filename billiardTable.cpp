@@ -4,9 +4,6 @@
 
 #include "billiardTable.hpp"
 
-#define TOLERANCE 1E-6
-#define PI 3.14159
-
 GLdouble backBar, frontBar, leftBar, rightBar;
 
 void drawTableBar(GLint width, GLint height, GLint depth) {
