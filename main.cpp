@@ -1,12 +1,18 @@
-
 #include "main.hpp"
 
+char        texto[30];
+GLboolean   isLightEnabled = true;
+GLboolean   isNightEnabled = false;
+GLboolean   isTransparencyEnable = false;
+GLfloat     timer = 10;
 
-//================================================================================
-//===========================================================Variaveis e constantes
+GLfloat billiardTableDimensions[] = { 60.0, 2.0, 30.0 };
 
-//------------------------------------------------------------ Sistema Coordenadas
 Window window;
+Observer observer;
+Ball balls[4];
+Light topLight;
+Light ambientLight;
 
 void initWindow() {
     window.mainViewportWidth    = 16.0;
@@ -15,10 +21,6 @@ void initWindow() {
     window.windowWidth          = 600;
     window.windowHeight         = 500;
 }
-
-char     texto[30];
-//------------------------------------------------------------ Observador
-Observer observer;
 
 void initObserver() {
     observer.vision[RADIUS]         = 3.0;
@@ -37,9 +39,6 @@ void initObserver() {
     observer.upVector[Y]            = 1;
     observer.upVector[Z]            = 0;
 }
-
-//------------------------------------------------------------ Rotacao e Velocidade
-Ball balls[4];
 
 void initBalls() {
     balls[0].x = -4;
@@ -67,38 +66,49 @@ void initBalls() {
     balls[3].rotation = 30;
 }
 
-GLfloat   timer = 10;
+void initTopLight() {
+    topLight.position[X] = window.mainViewportWidth/2;
+    topLight.position[Y] = 10.0;
+    topLight.position[Z] = window.mainViewportWidth/2;
+    topLight.position[W] = 1.0;
 
-//------------------------------------------------------------ Iluminacao
-//------------------------------------------------------------ Global (ambiente)
+    topLight.attenuationConstant    = 1.0;
+    topLight.linearAttenuation      = 0.05;
+    topLight.quadraticAttenuation   = 0.0;
 
-GLint   noite=0;
-GLfloat luzGlobalCor[4]={1.0,1.0,1.0,1.0};   // 
-//Lampada tecto (ambiente local)
+    topLight.color[R] = 0.1;
+    topLight.color[G] = 0.1;
+    topLight.color[B] = 0.1;
+    topLight.color[A] = 1.0;
 
-GLint   ligaLuz=1;
-GLfloat localCor[4] ={0.1,0.1,0.1,1.0};
-GLfloat localCorDif[4] ={ 1, 1, 1, 1.0};
-GLfloat localPos[4] ={window.mainViewportWidth/2, 10.0, window.mainViewportWidth/2, 1.0};
-GLfloat localAttCon =1.0;
-GLfloat localAttLin =0.05;
-GLfloat localAttQua =0.0;
+    topLight.diffuseColor[R] = 1.0;
+    topLight.diffuseColor[G] = 1.0;
+    topLight.diffuseColor[B] = 1.0;
+    topLight.diffuseColor[A] = 1.0;
+}
 
+void initAmbientLight() {
+    ambientLight.color[R] = 1.0;
+    ambientLight.color[G] = 1.0;
+    ambientLight.color[B] = 1.0;
+    ambientLight.color[A] = 1.0;
+}
 
+void initLights() {
+    initAmbientLight();
+    initTopLight();
+}
 
-GLfloat Map[] = { 60.0, 5.0, 30.0 };
-GLint transp = 0;
-
-void initLights(void){
-    //Ambiente
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCor);
-    //Tecto
-    glLightfv(GL_LIGHT0, GL_POSITION,      localPos );
-    glLightfv(GL_LIGHT0, GL_AMBIENT,       localCor );
-    glLightfv(GL_LIGHT0, GL_DIFFUSE,       localCorDif );
-    glLightf (GL_LIGHT0, GL_CONSTANT_ATTENUATION, localAttCon);
-    glLightf (GL_LIGHT0, GL_LINEAR_ATTENUATION,   localAttLin) ;
-    glLightf (GL_LIGHT0, GL_QUADRATIC_ATTENUATION,localAttQua) ;
+void enableLights(void){
+    //Ambient Light
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientLight.color);
+    //Top Light
+    glLightfv(GL_LIGHT0, GL_POSITION,      topLight.position );
+    glLightfv(GL_LIGHT0, GL_AMBIENT,       topLight.color );
+    glLightfv(GL_LIGHT0, GL_DIFFUSE,       topLight.diffuseColor );
+    glLightf (GL_LIGHT0, GL_CONSTANT_ATTENUATION, topLight.attenuationConstant);
+    glLightf (GL_LIGHT0, GL_LINEAR_ATTENUATION,   topLight.linearAttenuation) ;
+    glLightf (GL_LIGHT0, GL_QUADRATIC_ATTENUATION,topLight.quadraticAttenuation) ;
 }
 
 void init(void) {
@@ -109,11 +119,13 @@ void init(void) {
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
 
     initObserver();
+    initBalls();
+    initLights();
 
 
     initTextures();
     initMaterials(MATERIAL_ESMERALD);
-    initLights();
+    enableLights();
 
 
     glEnable(GL_LIGHTING);
@@ -165,13 +177,13 @@ void drawRoom() {
     glPushMatrix();
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
-    glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
+    glVertex3i(-billiardTableDimensions[0] / 2, 0, billiardTableDimensions[2] / 2);
     glTexCoord2f(1.0f, 0.0f);
-    glVertex3i(Map[0] / 2, 0, Map[2] / 2);
+    glVertex3i(billiardTableDimensions[0] / 2, 0, billiardTableDimensions[2] / 2);
     glTexCoord2f(1.0f, 1.0f);
-    glVertex3i(Map[0] / 2, 0, -Map[2] / 2);
+    glVertex3i(billiardTableDimensions[0] / 2, 0, -billiardTableDimensions[2] / 2);
     glTexCoord2f(0.0f, 1.0f);
-    glVertex3i(-Map[0] / 2, 0, -Map[2] / 2);
+    glVertex3i(-billiardTableDimensions[0] / 2, 0, -billiardTableDimensions[2] / 2);
     glEnd();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -184,13 +196,13 @@ void drawRoom() {
     glPushMatrix();
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
-    glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
+    glVertex3i(-billiardTableDimensions[0] / 2, 0, billiardTableDimensions[2] / 2);
     glTexCoord2f(0.0f, 1.0f);
-    glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
+    glVertex3i(-billiardTableDimensions[0] / 2, billiardTableDimensions[1], billiardTableDimensions[2] / 2);
     glTexCoord2f(1.0f, 1.0f);
-    glVertex3i(-Map[0] / 2, Map[1], -Map[2] / 2);
+    glVertex3i(-billiardTableDimensions[0] / 2, billiardTableDimensions[1], -billiardTableDimensions[2] / 2);
     glTexCoord2f(1.0f, 0.0f);
-    glVertex3i(-Map[0] / 2, 0, -Map[2] / 2);
+    glVertex3i(-billiardTableDimensions[0] / 2, 0, -billiardTableDimensions[2] / 2);
     glEnd();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -200,13 +212,13 @@ void drawRoom() {
     glPushMatrix();
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
-    glVertex3i(Map[0] / 2, 0, Map[2] / 2);
+    glVertex3i(billiardTableDimensions[0] / 2, 0, billiardTableDimensions[2] / 2);
     glTexCoord2f(0.0f, 1.0f);
-    glVertex3i(Map[0] / 2, Map[1], Map[2] / 2);
+    glVertex3i(billiardTableDimensions[0] / 2, billiardTableDimensions[1], billiardTableDimensions[2] / 2);
     glTexCoord2f(1.0f, 1.0f);
-    glVertex3i(Map[0] / 2, Map[1], -Map[2] / 2);
+    glVertex3i(billiardTableDimensions[0] / 2, billiardTableDimensions[1], -billiardTableDimensions[2] / 2);
     glTexCoord2f(1.0f, 0.0f);
-    glVertex3i(Map[0] / 2, 0, -Map[2] / 2);
+    glVertex3i(billiardTableDimensions[0] / 2, 0, -billiardTableDimensions[2] / 2);
     glEnd();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -218,13 +230,13 @@ void drawRoom() {
     glPushMatrix();
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
-    glVertex3i(-Map[0] / 2, 0, -Map[2] / 2);
+    glVertex3i(-billiardTableDimensions[0] / 2, 0, -billiardTableDimensions[2] / 2);
     glTexCoord2f(1.0f, 0.0f);
-    glVertex3i(Map[0] / 2, 0, -Map[2] / 2);
+    glVertex3i(billiardTableDimensions[0] / 2, 0, -billiardTableDimensions[2] / 2);
     glTexCoord2f(1.0f, 1.0f);
-    glVertex3i(Map[0] / 2, Map[1], -Map[2] / 2);
+    glVertex3i(billiardTableDimensions[0] / 2, billiardTableDimensions[1], -billiardTableDimensions[2] / 2);
     glTexCoord2f(0.0f, 1.0f);
-    glVertex3i(-Map[0] / 2, Map[1], -Map[2] / 2);
+    glVertex3i(-billiardTableDimensions[0] / 2, billiardTableDimensions[1], -billiardTableDimensions[2] / 2);
     glEnd();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -234,25 +246,24 @@ void drawRoom() {
     glPushMatrix();
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
-    glVertex3i(-Map[0] / 2, 0, Map[2] / 2);
+    glVertex3i(-billiardTableDimensions[0] / 2, 0, billiardTableDimensions[2] / 2);
     glTexCoord2f(1.0f, 0.0f);
-    glVertex3i(Map[0] / 2, 0, Map[2] / 2);
+    glVertex3i(billiardTableDimensions[0] / 2, 0, billiardTableDimensions[2] / 2);
     glTexCoord2f(1.0f, 1.0f);
-    glVertex3i(Map[0] / 2, Map[1], Map[2] / 2);
+    glVertex3i(billiardTableDimensions[0] / 2, billiardTableDimensions[1], billiardTableDimensions[2] / 2);
     glTexCoord2f(0.0f, 1.0f);
-    glVertex3i(-Map[0] / 2, Map[1], Map[2] / 2);
+    glVertex3i(-billiardTableDimensions[0] / 2, billiardTableDimensions[1], billiardTableDimensions[2] / 2);
     glEnd();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
 }
 
-void drawMirror()
-{
+void drawMirror() {
     glBegin (GL_QUADS);
-    glVertex3f (-Map[0]/4, 15, Map[2]/4);
-    glVertex3f (-Map[0]/4, 15, -Map[2]/4);
-    glVertex3f (Map[0]/4, 15, -Map[2]/4);
-    glVertex3f (Map[0]/4, 15, Map[2]/4);
+    glVertex3f (-billiardTableDimensions[0]/4, 15, billiardTableDimensions[2]/4);
+    glVertex3f (-billiardTableDimensions[0]/4, 15, -billiardTableDimensions[2]/4);
+    glVertex3f (billiardTableDimensions[0]/4, 15, -billiardTableDimensions[2]/4);
+    glVertex3f (billiardTableDimensions[0]/4, 15, billiardTableDimensions[2]/4);
     glEnd();
 
 }
@@ -263,14 +274,14 @@ void drawScene() {
 
     drawBilliardTable(60, 20);
 
-    if (transp) {
+    if (isTransparencyEnable) {
 
         glDisable(GL_COLOR_MATERIAL);
         glEnable(GL_LIGHTING);
 
         //glDisable(GL_COLOR_MATERIAL);
         //glEnable(GL_LIGHTING);
-        initLights();
+        enableLights();
 
         //black
         glPushMatrix();
@@ -307,7 +318,7 @@ void drawScene() {
     {
         glDisable(GL_COLOR_MATERIAL);
         glEnable(GL_LIGHTING);
-        initLights();
+        enableLights();
 
         //black
         glPushMatrix();
@@ -353,14 +364,14 @@ GLvoid resize(GLsizei width, GLsizei height) {
 }
 
 void iluminacao() {
-    if (ligaLuz)
+    if (isLightEnabled)
         glEnable(GL_LIGHT0);
     else
         glDisable(GL_LIGHT0);
 }
 
 void display(void){
-    if (noite)
+    if (isNightEnabled)
         glClearColor(GRAY1);
     else
         glClearColor(GRAY2);
@@ -454,11 +465,11 @@ void display(void){
 
     //--------------------- Informacao
     glColor3f(0,0,0);
-    sprintf(texto, "%d - Noite", noite);
+    sprintf(texto, "%d - Noite", isNightEnabled);
     desenhaTexto(texto,-12 ,  + 1 ,- 6);
-    sprintf(texto, "%d - Tecto", ligaLuz);
+    sprintf(texto, "%d - Tecto", isLightEnabled);
     desenhaTexto(texto,-12 , 1 ,  - 9);
-    sprintf(texto, "%d - Trans", transp);
+    sprintf(texto, "%d - Trans", isTransparencyEnable);
     desenhaTexto(texto,-12 ,1 ,  - 12);
 
     glutSwapBuffers();
@@ -470,30 +481,38 @@ void updateVisao(){
     glutPostRedisplay();
 }
 
-//======================================================= EVENTOS
 void keyboard(unsigned char key, int x, int y){
     switch (key) {
-            //--------------------------- Dia/noite
+            //--------------------------- Dia/isNightEnabled
         case 'n':
         case 'N':
-            noite=!noite;
-            if (noite)
-            { luzGlobalCor[0]=0.6;   luzGlobalCor[1]=0.6;   luzGlobalCor[2]=0.6; }
-            else
-            { luzGlobalCor[0]=0.3;   luzGlobalCor[1]=0.3;   luzGlobalCor[2]=0.3; }
-            glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCor);
+            isNightEnabled = !isNightEnabled;
+
+            if (isNightEnabled) {
+                ambientLight.color[R]=1.0;
+                ambientLight.color[G]=1.0;
+                ambientLight.color[B]=1.0;
+            }
+            else {
+                ambientLight.color[R]=0.3;
+                ambientLight.color[G]=0.3;
+                ambientLight.color[B]=0.3;
+            }
+
+            initLights();
             glutPostRedisplay();
             break;
             //--------------------------- Iluminacaoda sala
         case 't':
         case 'T':
-            ligaLuz=!ligaLuz;
+            isLightEnabled = !isLightEnabled;
+
             glutPostRedisplay();
             break;
 
         case 'g':
         case 'G':
-            transp = !transp;
+            isTransparencyEnable = !isTransparencyEnable;
             glutPostRedisplay();
             break;
         case 'e':
@@ -537,7 +556,6 @@ void teclasNotAscii(int key, int x, int y) {
     updateVisao();
 }
 
-
 void Timer(int value) {
     for(int i = 0; i < 4; i++) {
         runColisionWithBalls(&balls[i].x, &balls[i].z, &balls[i].rotation, 1.0);
@@ -546,16 +564,12 @@ void Timer(int value) {
         }
     }
 
-
     glutPostRedisplay();
     glutTimerFunc(timer, Timer, 1);
 }
 
-
-//======================================================= MAIN
 int main(int argc, char** argv) {
     initWindow();
-    initBalls();
 
     glutInit(&argc, argv);
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL);

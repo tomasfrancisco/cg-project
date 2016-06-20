@@ -6,6 +6,12 @@
 #define X 0
 #define Y 1
 #define Z 2
+#define W 3
+
+#define R 0
+#define G 1
+#define B 2
+#define A 3
 
 #define RADIUS 0
 #define ANGLE 1

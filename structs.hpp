@@ -33,6 +33,15 @@ struct Ball {
     GLdouble rotation;
 };
 
+struct Light {
+    GLfloat position[4],
+            quadraticAttenuation,
+            linearAttenuation,
+            attenuationConstant,
+            diffuseColor[4],
+            color[4];
+};
+
 
 
 
