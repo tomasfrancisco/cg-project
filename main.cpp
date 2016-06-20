@@ -1,85 +1,49 @@
-
-#include "main.hpp"
-
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include "OpenGL.hpp"
+#include "materials.hpp"
+#include "textures.hpp"
+#include "colors.hpp"
+#include "billiardTable.hpp"
 
 //================================================================================
 //===========================================================Variaveis e constantes
 
 //------------------------------------------------------------ Sistema Coordenadas
-Window window;
-
-void initWindow() {
-    window.mainViewportWidth    = 16.0;
-    window.mainViewportHeight   = 15.0;
-
-    window.windowWidth          = 600;
-    window.windowHeight         = 500;
-}
-
+GLfloat  xC=16.0, zC=15.0;
+GLint    wScreen=600, hScreen=500;
 char     texto[30];
 //------------------------------------------------------------ Observador
-Observer observer;
+GLfloat  PI = 3.14159;
+GLfloat  rVisao=3.0, aVisao=0.5*PI, incVisao=0.1;
 
-void initObserver() {
-    observer.vision[RADIUS]         = 3.0;
-    observer.vision[ANGLE]          = 0.5 * PI;
-    observer.vision[INCLINATION]    = 0.1;
-
-    observer.position[X]            = 0;
-    observer.position[Y]            = 4;
-    observer.position[Z]            = 0.5 * window.mainViewportWidth;
-
-    observer.lookAt[X]              = observer.position[X] + observer.vision[RADIUS] * cos(observer.vision[ANGLE]);
-    observer.lookAt[Y]              = observer.position[Y];
-    observer.lookAt[Z]              = observer.position[Z] + observer.vision[RADIUS] * sin(observer.vision[ANGLE]);
-
-    observer.upVector[X]            = 0;
-    observer.upVector[Y]            = 1;
-    observer.upVector[Z]            = 0;
-}
+GLdouble obsPini[] ={0, 4, static_cast<GLfloat>(0.5*xC)};
+GLdouble  obsPfin[] ={static_cast<GLfloat>(obsPini[0]+rVisao*cos(aVisao)), obsPini[1], static_cast<GLfloat>(obsPini[2]+rVisao*sin(aVisao))};
 
 //------------------------------------------------------------ Rotacao e Velocidade
-Ball balls[4];
 
-void initBalls() {
-    balls[0].x = -4;
-    balls[0].y = 2;
-    balls[0].z = 6;
-
-    balls[0].rotation = 15;
-
-    balls[1].x = -10;
-    balls[1].y = 2;
-    balls[1].z = 6;
-
-    balls[1].rotation = 30;
-
-    balls[2].x = 15;
-    balls[2].y = 2;
-    balls[2].z = -7.5;
-
-    balls[2].rotation = 45;
-
-    balls[3].x = 4;
-    balls[3].y = 2;
-    balls[3].z = -7.5;
-
-    balls[3].rotation = 30;
-}
-
+GLdouble  rotacoes [4] = {15,30,45,30};
 GLfloat   timer = 10;
+
+
+//Bolas
+GLdouble  bolasPos [4][3]= {{-4 , 2, 6},
+                            {-10, 2, 6},
+                            {15,  2, -7.5},
+                            {4,   2, -7.5}};
 
 //------------------------------------------------------------ Iluminacao
 //------------------------------------------------------------ Global (ambiente)
 
 GLint   noite=0;
-GLfloat luzGlobalCor[4]={1.0,1.0,1.0,1.0};   // 
+GLfloat luzGlobalCor[4]={1.0,1.0,1.0,1.0};   //
 //Lampada tecto (ambiente local)
 
 GLint   ligaLuz=1;
 GLfloat localCor[4] ={0.1,0.1,0.1,1.0};
 GLfloat localCorDif[4] ={ 1, 1, 1, 1.0};
-GLfloat localPos[4] ={window.mainViewportWidth/2, 10.0, window.mainViewportWidth/2, 1.0};
+GLfloat localPos[4] ={xC/2, 10.0, xC/2, 1.0};
 GLfloat localAttCon =1.0;
 GLfloat localAttLin =0.05;
 GLfloat localAttQua =0.0;
@@ -108,9 +72,6 @@ void init(void) {
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
 
-    initObserver();
-
-
     initTextures();
     initMaterials(MATERIAL_ESMERALD);
     initLights();
@@ -138,22 +99,22 @@ void drawAxis() {
     //Eixo dos zz
     glColor4f(AZUL);
     glBegin(GL_LINES);
-    glVertex3i(0,0,-window.mainViewportWidth);
-    glVertex3i(0,0, window.mainViewportWidth);
+    glVertex3i(0,0,-xC);
+    glVertex3i(0,0, xC);
     glEnd();
 
     //Eixo dos yy
     glColor4f(VERDE);
     glBegin(GL_LINE);
-    glVertex3i(0,-window.mainViewportWidth,0);
-    glVertex3i(0,window.mainViewportWidth,0);
+    glVertex3i(0,-xC,0);
+    glVertex3i(0,xC,0);
     glEnd();
 
     //Eixo dos xx
     glColor4f(VERMELHO);
     glBegin(GL_LINES);
-    glVertex3i(-window.mainViewportWidth,0,0);
-    glVertex3i( window.mainViewportWidth,0,0);
+    glVertex3i(-xC,0,0);
+    glVertex3i( xC,0,0);
     glEnd();
     glPopMatrix();
 }
@@ -258,7 +219,6 @@ void drawMirror()
 }
 
 void drawScene() {
-    //glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BITS);
     drawAxis();
 
     drawBilliardTable(60, 20);
@@ -275,7 +235,7 @@ void drawScene() {
         //black
         glPushMatrix();
         initMaterials(2);
-        glTranslatef(balls[0].x, balls[0].y, balls[0].z);
+        glTranslatef(bolasPos[0][0], bolasPos[0][1], bolasPos[0][2]);
         //glRotatef(rotacoes[1],1,0,0);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
@@ -283,21 +243,21 @@ void drawScene() {
         //white
         glPushMatrix();
         initMaterials(3);
-        glTranslatef(balls[1].x, balls[1].y, balls[1].z);
+        glTranslatef(bolasPos[1][0], bolasPos[1][1], bolasPos[1][2]);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //red
         glPushMatrix();
         initMaterials(4);
-        glTranslatef(balls[2].x, balls[2].y, balls[2].z);
+        glTranslatef(bolasPos[2][0], bolasPos[2][1], bolasPos[2][2]);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         glPushMatrix();
 
         initMaterials(5);
-        glTranslatef(balls[3].x, balls[3].y, balls[3].z);
+        glTranslatef(bolasPos[3][0], bolasPos[3][1], bolasPos[3][2]);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
@@ -312,28 +272,28 @@ void drawScene() {
         //black
         glPushMatrix();
         initMaterials(2);
-        glTranslatef(balls[0].x, balls[0].y, balls[0].z);
+        glTranslatef(bolasPos[0][0], bolasPos[0][1], bolasPos[0][2]);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //white
         glPushMatrix();
         initMaterials(3);
-        glTranslatef(balls[1].x, balls[1].y, balls[1].z);
+        glTranslatef(bolasPos[1][0], bolasPos[1][1], bolasPos[1][2]);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //red
         glPushMatrix();
         initMaterials(4);
-        glTranslatef(balls[2].x, balls[2].y, balls[2].z);
+        glTranslatef(bolasPos[2][0], bolasPos[2][1], bolasPos[2][2]);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
 
         //cyan
         glPushMatrix();
         initMaterials(5);
-        glTranslatef(balls[3].x, balls[3].y, balls[3].z);
+        glTranslatef(bolasPos[3][0], bolasPos[3][1], bolasPos[3][2]);
         glutSolidSphere(1, 250, 250);
         glPopMatrix();
     }
@@ -347,8 +307,8 @@ void drawScene() {
 }
 
 GLvoid resize(GLsizei width, GLsizei height) {
-    window.windowWidth = width;
-    window.windowHeight = height;
+    wScreen = width;
+    hScreen = height;
     drawScene();
 }
 
@@ -370,15 +330,13 @@ void display(void){
 
     //================================================================= Viewport1
     glEnable(GL_LIGHTING);
-    glViewport (0, 0, window.windowWidth, window.windowHeight);
+    glViewport (0, 0, wScreen, hScreen);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(99.0, window.windowWidth/window.windowHeight, 0.1, 100.0);
+    gluPerspective(99.0, wScreen/hScreen, 0.1, 100.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(  observer.position[X], observer.position[Y], observer.position[Z],
-                observer.lookAt[X], observer.lookAt[Y], observer.lookAt[Z],
-                observer.upVector[X], observer.upVector[Y], observer.upVector[Z]);
+    gluLookAt(  obsPini[0], obsPini[1], obsPini[2] , obsPfin[0], obsPfin[1], obsPfin[2], 0, 1, 0);
 
 
     glColorMask(0, 0, 0, 0);
@@ -425,16 +383,13 @@ void display(void){
     //================================================================= Viewport2
 
 
-    glViewport (window.windowWidth - window.windowWidth/4, 0, window.windowWidth/4, window.windowHeight/4);
+    glViewport (wScreen - wScreen/4, 0, wScreen/4, hScreen/4);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho (-window.mainViewportWidth,window.mainViewportWidth, -window.mainViewportWidth,window.mainViewportWidth, -window.mainViewportHeight,window.mainViewportHeight);
+    glOrtho (-xC,xC, -xC,xC, -zC,zC);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    // TODO: Review this up vector (There's something weird happening here)
-    gluLookAt( observer.position[X], observer.position[Y] + 10, observer.position[Z],
-               observer.lookAt[X], observer.lookAt[Y], observer.lookAt[Z],
-               observer.lookAt[X] - observer.position[X], observer.position[Y], observer.lookAt[Z] - observer.position[Z]);
+    gluLookAt( obsPini[0], obsPini[1] + 10, obsPini[2], obsPini[0], obsPini[1], obsPini[2],  (obsPfin[0] - obsPini[0]), obsPini[1], (obsPfin[2] - obsPini[2]));
 
     //--------------------- desenha objectos
 
@@ -443,10 +398,10 @@ void display(void){
     //================================================================= Viewport3
 
 //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    glViewport (window.windowWidth - window.windowWidth/4, 0, window.windowWidth/4, window.windowHeight/4);
+    glViewport (wScreen - wScreen/4, 0, wScreen/4, hScreen/4);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho (-window.mainViewportWidth,window.mainViewportWidth, -window.mainViewportWidth,window.mainViewportWidth, -window.mainViewportHeight,window.mainViewportHeight);
+    glOrtho (-xC,xC, -xC,xC, -zC,zC);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(0,  10, 0,0, 0,0, 0, 0, -1);
@@ -465,8 +420,8 @@ void display(void){
 }
 
 void updateVisao(){
-    observer.lookAt[X] = observer.position[X] + observer.vision[RADIUS] * cos(observer.vision[ANGLE]);
-    observer.lookAt[Z] = observer.position[Z] + observer.vision[RADIUS] * sin(observer.vision[ANGLE]);
+    obsPfin[0] =obsPini[0]+rVisao*cos(aVisao);
+    obsPfin[2] =obsPini[2]+rVisao*sin(aVisao);
     glutPostRedisplay();
 }
 
@@ -497,19 +452,19 @@ void keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         case 'e':
-            observer.position[Y] += 1;
+            obsPini[1] += 1;
             break;
         case 'd':
-            observer.position[Y] -= 1;
+            obsPini[1] -= 1;
             break;
         case 'w':
         case 'W':
-            observer.lookAt[Y] += 1;
+            obsPfin[1] += 1;
             break;
 
         case 's':
         case 'S':
-            observer.lookAt[Y] -= 1;
+            obsPfin[1] -= 1;
             break;
             //--------------------------- Escape
         case 27:
@@ -520,18 +475,18 @@ void keyboard(unsigned char key, int x, int y){
 
 void teclasNotAscii(int key, int x, int y) {
     if(key == GLUT_KEY_UP) {
-        observer.position[X] = observer.position[X] + observer.vision[INCLINATION] * cos(observer.vision[ANGLE]);
-        observer.position[Z] = observer.position[Z] + observer.vision[INCLINATION] * sin(observer.vision[ANGLE]);
+        obsPini[0]=obsPini[0]+incVisao*cos(aVisao);
+        obsPini[2]=obsPini[2]+incVisao*sin(aVisao);
     }
     if(key == GLUT_KEY_DOWN) {
-        observer.position[X] = observer.position[X] - observer.vision[INCLINATION] * cos(observer.vision[ANGLE]);
-        observer.position[Z] = observer.position[Z] - observer.vision[INCLINATION] * sin(observer.vision[ANGLE]);
+        obsPini[0]=obsPini[0]-incVisao*cos(aVisao);
+        obsPini[2]=obsPini[2]-incVisao*sin(aVisao);
     }
     if(key == GLUT_KEY_LEFT) {
-        observer.vision[ANGLE] = (observer.vision[ANGLE] - 0.1) ;
+        aVisao = (aVisao - 0.1) ;
     }
     if(key == GLUT_KEY_RIGHT) {
-        observer.vision[ANGLE] = (observer.vision[ANGLE] + 0.1) ;
+        aVisao = (aVisao + 0.1) ;
 
     }
     updateVisao();
@@ -540,7 +495,7 @@ void teclasNotAscii(int key, int x, int y) {
 
 void Timer(int value) {
     for(int i = 0; i < 4; i++) {
-        runColisionWithBalls(&balls[i].x, &balls[i].z, &balls[i].rotation, 1.0);
+        runColisionWithBalls(&bolasPos[i][0], &bolasPos[i][2], &rotacoes[i], 1.0);
         for(int j = i + 1; j < 4; j++) {
 
         }
@@ -554,12 +509,11 @@ void Timer(int value) {
 
 //======================================================= MAIN
 int main(int argc, char** argv) {
-    initWindow();
-    initBalls();
+
 
     glutInit(&argc, argv);
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL);
-    glutInitWindowSize (window.windowWidth, window.windowHeight);
+    glutInitWindowSize (wScreen, hScreen);
     glutInitWindowPosition (400, 100);
     glutCreateWindow ("{(left,right,up,down) - (n,t,g)");
 
