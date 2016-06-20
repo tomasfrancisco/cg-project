@@ -17,7 +17,7 @@ void drawTableBar(GLint width, GLint height, GLint depth) {
 
     glEnable(GL_LIGHTING);
 
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
 
     glPushMatrix();
 
@@ -113,7 +113,7 @@ void drawTableCamp(GLint width, GLint height, GLint depth) {
 
     glEnable(GL_LIGHTING);
 
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
 
     glPushMatrix();
         //top
@@ -168,6 +168,7 @@ void drawTableCamp(GLint width, GLint height, GLint depth) {
     glEnable(GL_COLOR_MATERIAL);
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
+    glDisable(GL_CULL_FACE);
 }
 
 void setBarsPositions(GLdouble xSize, GLdouble ySize, GLint depth) {
@@ -196,17 +197,16 @@ void drawBilliardTable(GLint width, GLint height) {
     setBarsPositions(xSize, ySize, depth);
 }
 
-void runColisionWithBalls(GLdouble * xPosition, GLdouble * zPosition, GLdouble * rotation) {
-    printf("back: %f, front: %f, left: %f, right: %f\n", backBar, frontBar, leftBar, rightBar);
+void runColisionWithBalls(GLdouble * xPosition, GLdouble * zPosition, GLdouble * rotation, GLdouble radius) {
 
-    if(*xPosition > leftBar && *xPosition < rightBar) {
+    if(*xPosition > leftBar + radius && *xPosition < rightBar - radius) {
         *xPosition += cos(*rotation) / 2;
     } else {
         *xPosition -= cos(*rotation) / 2;
         *rotation = PI - *rotation;
     }
 
-    if(*zPosition > backBar && *zPosition < frontBar){
+    if(*zPosition > backBar + radius && *zPosition < frontBar - radius){
         *zPosition += sin(*rotation) / 2;
     } else {
         *zPosition -= sin(*rotation) / 2;
